@@ -1,7 +1,17 @@
 // Lao Education Data Presets & Configuration
 
-// Empty default districts (Will ONLY be populated from imported Excel or manually added)
-const LAO_DISTRICTS_DATA = {};
+// Default pre-loaded districts and schools so online users can immediately select options
+const DEFAULT_LAO_DISTRICTS = {
+  "ເມືອງຈັນທະບູລີ": ["ໂຮງຮຽນ ມ.ສ ເພຍວັດ", "ໂຮງຮຽນ ປ.ຖ ຈັນທະບູລີ", "ໂຮງຮຽນ ມ.ຕ ຈັນທະບູລີ"],
+  "ເມືອງສີໂຄດຕະບອງ": ["ໂຮງຮຽນ ມ.ສ ໂນນແກ້ວ", "ໂຮງຮຽນ ປ.ຖ ສີໂຄດຕະບອງ", "ໂຮງຮຽນ ມ.ຕ ໂນນສະຫວ່າງ"],
+  "ເມືອງໄຊເສດຖາ": ["ໂຮງຮຽນ ມ.ສ ໄຊເສດຖາ", "ໂຮງຮຽນ ປ.ຖ ໄຊເສດຖາ", "ໂຮງຮຽນ ມ.ຕ ຫົວຂົວ"],
+  "ເມືອງສີສັດຕະນາກ": ["ໂຮງຮຽນ ມ.ສ ໂສພາ", "ໂຮງຮຽນ ປ.ຖ ສີສັດຕະນາກ", "ໂຮງຮຽນ ມ.ຕ ບຶງຂະຫຍອງ"],
+  "ເມືອງນາຊາຍທອງ": ["ໂຮງຮຽນ ມ.ສ ນາຊາຍທອງ", "ໂຮງຮຽນ ປ.ຖ ນາຊາຍທອງ", "ໂຮງຮຽນ ມ.ຕ ນາຊາຍທອງ"],
+  "ເມືອງໄຊທານີ": ["ໂຮງຮຽນ ມ.ສ ດົງໂດກ", "ໂຮງຮຽນ ປ.ຖ ໄຊທານີ", "ໂຮງຮຽນ ມ.ຕ ຕັງໂຄກ"],
+  "ເມືອງຫາດຊາຍຟອງ": ["ໂຮງຮຽນ ມ.ສ ຫາດຊາຍຟອງ", "ໂຮງຮຽນ ປ.ຖ ຫາດຊາຍຟອງ", "ໂຮງຮຽນ ມ.ຕ ຫາດຊາຍຟອງ"],
+  "ເມືອງສັງທອງ": ["ໂຮງຮຽນ ມ.ສ ສັງທອງ", "ໂຮງຮຽນ ປ.ຖ ສັງທອງ"],
+  "ເມືອງປາກງື່ມ": ["ໂຮງຮຽນ ມ.ສ ປາກງື່ມ", "ໂຮງຮຽນ ປ.ຖ ປາກງື່ມ"]
+};
 
 // Lao Months Configuration
 const LAO_MONTHS = [
@@ -29,7 +39,7 @@ const ACADEMIC_YEARS = [
   "2031-2032"
 ];
 
-// Education Levels & Grade Level Mappings (Removed ມັດທະຍົມປາຍ)
+// Education Levels & Grade Level Mappings
 const EDUCATION_LEVELS = {
   "ປະຖົມສຶກສາ": ["ປ.1", "ປ.2", "ປ.3", "ປ.4", "ປ.5"],
   "ມັດທະຍົມຕອນຕົ້ນ": ["ມ.1", "ມ.2", "ມ.3", "ມ.4"],

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Lao Student Data Collection System - Application Logic (Google Sheets Auto-Sync Enabled)
+   Lao Student Data Collection System - Application Logic (Pre-loaded Online Districts)
    ========================================================================== */
 
 // 🟢 Google Apps Script Web App URL ສຳລັບບັນທຶກຂໍ້ມູນລົງ Google Sheet ໂດຍອັດໂນມັດ
@@ -217,21 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('lao_school_records', JSON.stringify(records));
   }
 
-  // Populate District Dropdowns ONLY from Excel Imported
+  // Populate District Dropdowns from Pre-loaded Presets + Imported Excel
   function populateDistrictDropdowns() {
     districtSelect.innerHTML = '<option value="">-- ເລືອກເມືອງ --</option>';
     filterDistrict.innerHTML = '<option value="">ທຸກໆເມືອງ</option>';
 
     const importedDistricts = JSON.parse(localStorage.getItem('lao_excel_custom_districts') || '{}');
-    const allDistrictsSet = new Set(Object.keys(importedDistricts));
-
-    if (allDistrictsSet.size === 0) {
-      const opt = document.createElement('option');
-      opt.value = "";
-      opt.textContent = "-- ບໍ່ມີເມືອງ (ກະລຸນານຳເຂົ້າຟາຍ Excel ກ່ອນ) --";
-      districtSelect.appendChild(opt);
-      return;
-    }
+    
+    // Combine DEFAULT_LAO_DISTRICTS and importedDistricts
+    const allDistrictsSet = new Set([
+      ...Object.keys(DEFAULT_LAO_DISTRICTS),
+      ...Object.keys(importedDistricts)
+    ]);
 
     allDistrictsSet.forEach(distName => {
       const opt = document.createElement('option');
@@ -246,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Populate School Dropdown based on selected district
+  // Populate School Dropdown based on selected district (Pre-loaded + Excel)
   function populateSchools(selectedDistrict) {
     schoolSelect.innerHTML = '<option value="">-- ເລືອກໂຮງຮຽນ --</option>';
     
@@ -258,6 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let schoolsList = [];
 
+    // Add from DEFAULT_LAO_DISTRICTS
+    if (DEFAULT_LAO_DISTRICTS[selectedDistrict]) {
+      DEFAULT_LAO_DISTRICTS[selectedDistrict].forEach(s => {
+        if (!schoolsList.includes(s)) schoolsList.push(s);
+      });
+    }
+
+    // Add from Excel Imported
     const importedDistricts = JSON.parse(localStorage.getItem('lao_excel_custom_districts') || '{}');
     if (importedDistricts[selectedDistrict]) {
       importedDistricts[selectedDistrict].forEach(s => {
@@ -531,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     if (!districtSelect.value) {
-      showToast('ກະລຸນາເລືອກເມືອງ (ຫຼື ນຳເຂົ້າຟາຍ Excel ກ່ອນ)', 'error');
+      showToast('ກະລຸນາເລືອກເມືອງ', 'error');
       return;
     }
 
@@ -1176,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     genderChart = new Chart(ctx2, {
       type: 'doughnut',
       data: {
-        labels: ['နັກຮຽນຊາຍ', 'ນັກຮຽນຍິງ'],
+        labels: ['ນັກຮຽນຊາຍ', 'ນັກຮຽນຍິງ'],
         datasets: [{
           data: [totalMale < 0 ? 0 : totalMale, totalFemale],
           backgroundColor: ['#06b6d4', '#ec4899'],
