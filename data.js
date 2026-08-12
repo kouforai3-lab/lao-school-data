@@ -1,6 +1,6 @@
-// Lao Education Data Presets & Configuration (ແຂວງ ອຸດົມໄຊ)
+// Lao Education Data Presets & Configuration (ແຂວງ ອຸດົມໄຊ ເທົ່ານັ້ນ)
 
-// Exact Oudomxay Province Districts & Schools extracted from official Excel dataset
+// Strict Oudomxay Province Districts (7 Districts Only) & Official Schools
 const DEFAULT_LAO_DISTRICTS = {
   "ເມືອງໄຊ": [
     "ມ.ສ ເທດສະບານແຂວງ",
