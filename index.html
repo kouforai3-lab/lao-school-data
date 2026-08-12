@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ລະບົບເກັບກຳຂໍ້ມູນນັກຮຽນ ປະຖົມ ແລະ ມັດທະຍົມ - Lao School Data Collection System">
-  <title>ລະບົບເກັບກຳຂໍ້ມູນນັກຮຽນ (School Data Collection Form)</title>
+  <meta name="description" content="ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ ປະຖົມ ແລະ ມັດທະຍົມ - Lao School Data Entry Form">
+  <title>ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ (Student Data Entry Form)</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,18 +14,12 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- SheetJS CDN (for Reading & Writing Excel Files .xlsx / .xls / .csv) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <div class="container">
+  <div class="container" style="max-width: 900px;">
     
     <!-- Top Navigation Header -->
     <header class="app-header">
@@ -34,8 +28,8 @@
           <i class="fa-solid fa-graduation-cap"></i>
         </div>
         <div>
-          <h1 class="brand-title">ລະບົບເກັບກຳຂໍ້ມູນນັກຮຽນ</h1>
-          <p class="brand-subtitle">ຟອມບັນທຶກ ແລະ ສະຫຼຸບສະຖິຕິການສຶກສາ (Lao School Data Collection)</p>
+          <h1 class="brand-title">ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ</h1>
+          <p class="brand-subtitle">ແຂວງອຸດົມໄຊ (Lao Student Data Entry Form)</p>
         </div>
       </div>
       
@@ -43,69 +37,18 @@
         <button id="themeToggleBtn" class="btn btn-icon-only" title="ປ່ຽນ Theme">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <button id="importExcelModalBtn" class="btn btn-success">
-          <i class="fa-solid fa-file-excel"></i> ນຳເຂົ້າ Excel
-        </button>
-        <button id="exportExcelBtn" class="btn btn-success" style="background: linear-gradient(135deg, #10b981, #047857);">
-          <i class="fa-solid fa-file-excel"></i> ສົ່ງອອກ Excel (.xlsx)
-        </button>
-        <button id="printReportBtn" class="btn btn-secondary">
-          <i class="fa-solid fa-print"></i> ພິມລາຍງານ
-        </button>
+        <a href="dashboard.html" class="btn btn-secondary">
+          <i class="fa-solid fa-chart-pie"></i> ເບິ່ງສະຫຼຸບ & ຕາຕະລາງ (Dashboard)
+        </a>
       </div>
     </header>
 
-    <!-- Top Dashboard Overview Cards -->
-    <section class="dashboard-grid">
-      <div class="stat-card">
-        <div class="stat-icon-bg">
-          <i class="fa-solid fa-users"></i>
-        </div>
-        <div class="stat-details">
-          <span class="stat-value" id="statTotalStudents">0</span>
-          <span class="stat-label">ນັກຮຽນທີ່ມີໜ້າຕົວຈິງທັງໝົດ</span>
-        </div>
-      </div>
-
-      <div class="stat-card stat-female">
-        <div class="stat-icon-bg">
-          <i class="fa-solid fa-person-dress"></i>
-        </div>
-        <div class="stat-details">
-          <span class="stat-value" id="statFemaleStudents">0</span>
-          <span class="stat-label">ນັກຮຽນຍິງທັງໝົດ (<span id="statFemalePercent">0</span>%)</span>
-        </div>
-      </div>
-
-      <div class="stat-card stat-dropout">
-        <div class="stat-icon-bg">
-          <i class="fa-solid fa-user-minus"></i>
-        </div>
-        <div class="stat-details">
-          <span class="stat-value" id="statTotalDropout">0</span>
-          <span class="stat-label">ຈຳນວນນັກຮຽນປະລະ</span>
-        </div>
-      </div>
-
-      <div class="stat-card stat-schools">
-        <div class="stat-icon-bg">
-          <i class="fa-solid fa-school"></i>
-        </div>
-        <div class="stat-details">
-          <span class="stat-value" id="statTotalRecords">0</span>
-          <span class="stat-label">ຈຳນວນຊຸດຂໍ້ມູນທີ່ບັນທຶກ</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Main Content Layout -->
-    <main class="main-layout">
-      
-      <!-- FORM SECTION (12 Specific Fields) -->
+    <!-- FORM SECTION (12 Specific Fields) -->
+    <main>
       <section class="card-section" id="dataFormCard">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fa-solid fa-pen-to-square"></i> ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ
+            <i class="fa-solid fa-pen-to-square"></i> ຟອມບັນທຶກຂໍ້ມູນນັກຮຽນ
           </h2>
           <span class="badge-tag" id="formModeBadge">ບັນທຶກຂໍ້ມູນໃໝ່</span>
         </div>
@@ -117,18 +60,17 @@
             
             <!-- Group 1: ຂໍ້ມູນທົ່ວໄປ -->
             <div class="form-group-title">
-              <i class="fa-solid fa-map-location-dot"></i> ສ່ວນທີ 1: ຂໍ້ມູນທົ່ວໄປ
+              <i class="fa-solid fa-map-location-dot"></i> ສ່ວນທີ 1: ຂໍ້ມູນທົ່ວໄປ (ແຂວງອຸດົມໄຊ)
             </div>
 
-            <!-- Field 1: ຊື່ເມືອງ Dropdown (Only Excel Imported) -->
+            <!-- Field 1: ຊື່ເມືອງ Dropdown -->
             <div class="form-field col-4">
               <label for="districtSelect" class="form-label">
                 1. ຊື່ເມືອງ <span class="req">*</span>
               </label>
               <select id="districtSelect" class="select-control" required>
-                <option value="">-- ເລືອກເມືອງ (ກະລຸນານຳເຂົ້າ Excel ກ່ອນ) --</option>
+                <option value="">-- ເລືອກເມືອງ --</option>
               </select>
-              <small style="font-size: 0.76rem; color: var(--text-muted);">* ສະແດງສະເພາະເມືອງທີ່ນຳເຂົ້າຈາກ Excel</small>
             </div>
 
             <!-- Field 2: ຊື່ໂຮງຮຽນ Dropdown (Cascading from District) -->
@@ -227,7 +169,7 @@
               </div>
             </div>
 
-            <!-- Field 9: ຍ້າຍອອກ (ຮວມ, ຍິງ, ເຫດຜົນ) -->
+            <!-- Field 9: ຍ້າຍອອກ (ຮວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
             <div class="form-field col-6">
               <label class="form-label">
                 9. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>
@@ -242,10 +184,13 @@
                   <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
                 </div>
               </div>
-              <input type="text" id="transferOutReason" class="input-control" placeholder="ເຫດຜົນໃນການຍ້າຍອອກ (ຖ້າມີ)">
+              <label for="transferOutReason" class="form-label" style="font-size: 0.85rem; margin-top: 4px;">
+                ເຫດຜົນໃນການຍ້າຍອອກ <span class="req">*</span>
+              </label>
+              <input type="text" id="transferOutReason" class="input-control" placeholder="ປ້ອນເຫດຜົນໃນການຍ້າຍອອກ..." required>
             </div>
 
-            <!-- Field 10: ປະລະການຮຽນ (ຮວມ, ຍິງ, ເຫດຜົນ) -->
+            <!-- Field 10: ປະລະການຮຽນ (ຮວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
             <div class="form-field col-6">
               <label class="form-label">
                 10. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>
@@ -260,7 +205,10 @@
                   <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
                 </div>
               </div>
-              <input type="text" id="dropoutReason" class="input-control" placeholder="ເຫດຜົນໃນການປະລະການຮຽນ (ຖ້າມີ)">
+              <label for="dropoutReason" class="form-label" style="font-size: 0.85rem; margin-top: 4px;">
+                ເຫດຜົນໃນການປະລະການຮຽນ <span class="req">*</span>
+              </label>
+              <input type="text" id="dropoutReason" class="input-control" placeholder="ປ້ອນເຫດຜົນໃນການປະລະການຮຽນ..." required>
             </div>
 
             <!-- Field 11: ນັກຮຽນຄ້າງຫ້ອງ (ຮວມ, ຍິງ) -->
@@ -308,209 +256,15 @@
               <button type="button" id="resetFormBtn" class="btn btn-secondary">
                 <i class="fa-solid fa-eraser"></i> ລ້າງຟອມ
               </button>
-              <button type="submit" id="submitFormBtn" class="btn btn-primary">
-                <i class="fa-solid fa-floppy-disk"></i> ບັນທຶກຂໍ້ມູນ
+              <button type="submit" id="submitFormBtn" class="btn btn-primary btn-lg" style="flex: 2;">
+                <i class="fa-solid fa-paper-plane"></i> ບັນທຶກ ແລະ ສົ່ງຂໍ້ມູນ
               </button>
             </div>
 
           </div>
         </form>
       </section>
-
-      <!-- ANALYTICS CHARTS SECTION -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <i class="fa-solid fa-chart-pie"></i> ສະຫຼຸບ ແລະ ວິເຄາະສະຖິຕິ (Analytics Dashboard)
-          </h2>
-        </div>
-        
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title"><i class="fa-solid fa-chart-column"></i> ຈຳນວນນັກຮຽນ ແຍກຕາມເມືອງ</h3>
-            <canvas id="districtChart" height="230"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title"><i class="fa-solid fa-chart-donut"></i> ສັດສ່ວນນັກຮຽນ ຍິງ - ຊາຍ</h3>
-            <canvas id="genderChart" height="230"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- DATA TABLE & ADVANCED SEARCH SECTION -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <i class="fa-solid fa-table-list"></i> ລາຍການຂໍ້ມູນທີ່ບັນທຶກແລ້ວ
-          </h2>
-          <span class="badge-tag" id="tableRecordCount">0 ລາຍການ</span>
-        </div>
-
-        <!-- Comprehensive Multi-Criteria Search & Filter Toolbar -->
-        <div class="toolbar-container">
-          
-          <!-- Unified Search Bar -->
-          <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" class="input-control" placeholder="🔍 ຄົ້ນຫາຕາມ ເມືອງ, ໂຮງຮຽນ, ຊັ້ນຮຽນ, ຂັ້ນຮຽນ, ເດືອນ, ສົກຮຽນ, ຜູ້ປ້ອນຂໍ້ມູນ...">
-          </div>
-
-          <!-- Multi-Dropdown Filters Row -->
-          <div class="filter-group-advanced">
-            <!-- Filter District -->
-            <select id="filterDistrict" class="select-control filter-item">
-              <option value="">ທຸກໆເມືອງ</option>
-            </select>
-
-            <!-- Filter Education Level -->
-            <select id="filterLevel" class="select-control filter-item">
-              <option value="">ທຸກໆຊັ້ນຮຽນ</option>
-              <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
-              <option value="ມັດທະຍົມຕອນຕົ້ນ">ມັດທະຍົມຕອນຕົ້ນ</option>
-              <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
-            </select>
-
-            <!-- Filter Grade Level -->
-            <select id="filterGrade" class="select-control filter-item">
-              <option value="">ທຸກໆຂັ້ນຮຽນ</option>
-              <option value="ປ.1">ປ.1</option>
-              <option value="ປ.2">ປ.2</option>
-              <option value="ປ.3">ປ.3</option>
-              <option value="ປ.4">ປ.4</option>
-              <option value="ປ.5">ປ.5</option>
-              <option value="ມ.1">ມ.1</option>
-              <option value="ມ.2">ມ.2</option>
-              <option value="ມ.3">ມ.3</option>
-              <option value="ມ.4">ມ.4</option>
-              <option value="ມ.5">ມ.5</option>
-              <option value="ມ.6">ມ.6</option>
-              <option value="ມ.7">ມ.7</option>
-            </select>
-
-            <!-- Filter Month -->
-            <select id="filterMonth" class="select-control filter-item">
-              <option value="">ທຸກໆເດືອນ</option>
-            </select>
-
-            <!-- Filter Academic Year (ສົກຮຽນ) -->
-            <select id="filterAcademicYear" class="select-control filter-item">
-              <option value="">ທຸກໆສົກຮຽນ</option>
-            </select>
-
-            <!-- Reset Filters Button -->
-            <button type="button" id="resetFiltersBtn" class="btn btn-secondary btn-sm" title="ລ້າງຕົວຈຳແນກ">
-              <i class="fa-solid fa-filter-circle-xmark"></i> ລ້າງ Filter
-            </button>
-          </div>
-        </div>
-
-        <!-- Responsive Data Table -->
-        <div class="table-responsive">
-          <table class="data-table" id="recordsTable">
-            <thead>
-              <tr>
-                <th>ເດືອນ / ສົກຮຽນ</th>
-                <th>ເມືອງ</th>
-                <th>ໂຮງຮຽນ</th>
-                <th>ຊັ້ນ/ຂັ້ນ</th>
-                <th>ລົງທະບຽນ</th>
-                <th>ຍ້າຍເຂົ້າ</th>
-                <th>ຍ້າຍອອກ</th>
-                <th>ປະລະ</th>
-                <th>ໜ້າຕົວຈິງ (ຍິງ)</th>
-                <th>ຜູ້ປ້ອນ</th>
-                <th style="text-align: center;">ຈັດການ</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
     </main>
-  </div>
-
-  <!-- MODAL: Import Excel File (.xlsx / .xls / .csv) -->
-  <div class="modal-overlay" id="excelImportModal">
-    <div class="modal-box" style="max-width: 750px;">
-      <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-file-excel" style="color: var(--accent-success);"></i> ນຳເຂົ້າຂໍ້ມູນຈາກຟາຍ Excel (.xlsx, .xls, .csv)</h3>
-        <button class="close-btn" id="closeExcelModalBtn">&times;</button>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 16px;">
-        
-        <!-- File Dropzone -->
-        <div class="file-dropzone" id="excelDropzone">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 10px;"></i>
-          <p style="font-weight: 600; font-size: 1.05rem;">ລາກຟາຍ Excel ມາຮ່ວງໃສ່ບ່ອນນີ້ ຫຼື ຄລິກເພື່ອເລືອກຟາຍ</p>
-
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
-          <button type="button" class="btn btn-secondary btn-sm" id="browseExcelFileBtn" style="margin-top: 10px;">
-            <i class="fa-solid fa-folder-open"></i> ເລືອກຟາຍ Excel...
-          </button>
-        </div>
-
-        <!-- Import Target Options -->
-        <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
-          <label style="font-weight: 600;">ຮູບແບບການນຳເຂົ້າຂໍ້ມູນ (Import Options):</label>
-
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="radio" name="importTarget" value="PRESETS" checked>
-            <span><strong>ນຳເຂົ້າເປັນ "ລາຍຊື່ເມືອງ/ໂຮງຮຽນ/ຂັ້ນຮຽນ" (Master Lists)</strong> - ເພື່ອອັບເດດ Dropdown</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="radio" name="importTarget" value="RECORDS">
-            <span><strong>ນຳເຂົ້າເປັນ "ລາຍການສະຖິຕິຂໍ້ມູນນັກຮຽນ" (Full Data Records)</strong> - ເຂົ້າຕາຕະລາງ</span>
-          </label>
-        </div>
-
-        <!-- Template Download Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-muted);">
-          <span><i class="fa-solid fa-lightbulb"></i> ທ່ານສາມາດດາວໂຫຼດຟາຍແມ່ແບບ Excel ຕົວຢ່າງໄດ້ທີ່ນີ້:</span>
-          <button type="button" class="btn btn-secondary btn-sm" id="downloadExcelTemplateBtn">
-            <i class="fa-solid fa-download"></i> ດາວໂຫຼດແມ່ແບບ Excel
-          </button>
-        </div>
-
-        <!-- File Preview Table -->
-        <div id="excelPreviewContainer" style="display: none; margin-top: 10px;">
-          <h4 style="margin-bottom: 8px; color: var(--accent-primary); display: flex; justify-content: space-between; align-items: center;">
-            <span><i class="fa-solid fa-table"></i> ຕົວຢ່າງຂໍ້ມູນຈາກ Excel (<span id="excelRowCount">0</span> ຖ້ວນ)</span>
-            <span id="excelFileNameBadge" class="chip chip-primary"></span>
-          </h4>
-          <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
-            <table class="data-table" id="excelPreviewTable">
-              <thead id="excelPreviewHead"></thead>
-              <tbody id="excelPreviewBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-          <button type="button" class="btn btn-secondary" id="cancelExcelModalBtn">ຍົກເລີກ</button>
-          <button type="button" class="btn btn-success" id="confirmExcelImportBtn" disabled>
-            <i class="fa-solid fa-check"></i> ຢືນຢັນການນຳເຂົ້າ
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Detail View / Edit -->
-  <div class="modal-overlay" id="detailModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modalTitle">ລາຍລະອຽດຂໍ້ມູນ</h3>
-        <button class="close-btn" id="closeModalBtn">&times;</button>
-      </div>
-      <div class="modal-content" id="modalContent">
-        <!-- Content inserted dynamically -->
-      </div>
-    </div>
   </div>
 
   <!-- Toast Notification Container -->
