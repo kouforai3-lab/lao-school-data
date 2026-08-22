@@ -1,35 +1,29 @@
 /* ==========================================================================
-   Lao Student Data Collection System - Application Logic (Trends & Comprehensive KPI)
+   Lao Student Data Collection System - Application Logic
    ========================================================================== */
 
-// 🟢 Google Apps Script Web App URL ສຳລັບບັນທຶກຂໍ້ມູນລົງ Google Sheet ໂດຍອັດໂນມັດ
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwu0jUyKngnRIHHDGkKfQScouZT9i96hoFETg3hU1nVbzMSpQNtpa81etSHsDaN05yZEg/exec"; 
+// 🟢 Google Apps Script Web App URL
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydJFn8REuZ0zgFQNHPEY49oSsbO660_mD3z71EJ7s3E4kFYZH8kQcCowH3ai93OCuSDQ/exec";
 
 document.addEventListener('DOMContentLoaded', () => {
-  // State variables
+  // Application State
   let records = [];
-  let districtChart = null;
-  let genderChart = null;
-  let monthlyTrendChart = null;
-  let movementChart = null;
-  let parsedExcelData = null;
 
-  // DOM Elements (Safe Retrieval)
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  // DOM Elements - Form
   const studentDataForm = document.getElementById('studentDataForm');
   const recordIdInput = document.getElementById('recordId');
   const formModeBadge = document.getElementById('formModeBadge');
 
   const districtSelect = document.getElementById('districtSelect');
   const schoolSelect = document.getElementById('schoolSelect');
-  const collectorName = document.getElementById('collectorName');
+  const schoolCodeInput = document.getElementById('schoolCodeInput');
+  const collectorNameInput = document.getElementById('collectorName');
   const educationLevelSelect = document.getElementById('educationLevelSelect');
   const gradeLevelSelect = document.getElementById('gradeLevelSelect');
-  
-  // Lao Month & Academic Year Selector elements
   const entryLaoMonthSelect = document.getElementById('entryLaoMonthSelect');
   const entryAcademicYearSelect = document.getElementById('entryAcademicYearSelect');
 
+  // DOM Elements - Numbers
   const passedRegisteredTotal = document.getElementById('passedRegisteredTotal');
   const passedRegisteredFemale = document.getElementById('passedRegisteredFemale');
   const transferInTotal = document.getElementById('transferInTotal');
@@ -48,8 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const recalculateBtn = document.getElementById('recalculateBtn');
   const resetFormBtn = document.getElementById('resetFormBtn');
   const submitFormBtn = document.getElementById('submitFormBtn');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-  // Search & Filter Elements
+  // DOM Elements - Dashboard / Table / Filters
   const tableBody = document.getElementById('tableBody');
   const tableRecordCount = document.getElementById('tableRecordCount');
   const searchInput = document.getElementById('searchInput');
@@ -59,1426 +54,1868 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterMonth = document.getElementById('filterMonth');
   const filterAcademicYear = document.getElementById('filterAcademicYear');
   const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-
   const exportExcelBtn = document.getElementById('exportExcelBtn');
-  const printReportBtn = document.getElementById('printReportBtn');
 
-  // Excel Modal Elements
-  const importExcelModalBtn = document.getElementById('importExcelModalBtn');
-  const excelImportModal = document.getElementById('excelImportModal');
-  const closeExcelModalBtn = document.getElementById('closeExcelModalBtn');
-  const cancelExcelModalBtn = document.getElementById('cancelExcelModalBtn');
-  const excelDropzone = document.getElementById('excelDropzone');
-  const excelFileInput = document.getElementById('excelFileInput');
-  const browseExcelFileBtn = document.getElementById('browseExcelFileBtn');
-  const confirmExcelImportBtn = document.getElementById('confirmExcelImportBtn');
-  const downloadExcelTemplateBtn = document.getElementById('downloadExcelTemplateBtn');
+  // Submission Status Elements
+  const kpiTotalMasterSchools = document.getElementById('kpiTotalMasterSchools');
+  const kpiSubmittedSchools = document.getElementById('kpiSubmittedSchools');
+  const kpiUnsubmittedSchools = document.getElementById('kpiUnsubmittedSchools');
+  const kpiSubmissionRate = document.getElementById('kpiSubmissionRate');
+  const overallProgressBar = document.getElementById('overallProgressBar');
+  const unsubmittedTableBody = document.getElementById('unsubmittedTableBody');
+  const unsubmittedFilterDistrict = document.getElementById('unsubmittedFilterDistrict');
+  const unsubmittedCountBadge = document.getElementById('unsubmittedCountBadge');
 
-  const excelPreviewContainer = document.getElementById('excelPreviewContainer');
-  const excelPreviewHead = document.getElementById('excelPreviewHead');
-  const excelPreviewBody = document.getElementById('excelPreviewBody');
-  const excelRowCount = document.getElementById('excelRowCount');
-  const excelFileNameBadge = document.getElementById('excelFileNameBadge');
-
-  // Stats KPI Elements
-  const statRegisteredTotal = document.getElementById('statRegisteredTotal');
-  const statRegisteredFemale = document.getElementById('statRegisteredFemale');
-  const statRegisteredPercent = document.getElementById('statRegisteredPercent');
-  
-  const statTransferInTotal = document.getElementById('statTransferInTotal');
-  const statTransferInFemale = document.getElementById('statTransferInFemale');
-  const statTransferInPercent = document.getElementById('statTransferInPercent');
-
-  const statTransferOutTotal = document.getElementById('statTransferOutTotal');
-  const statTransferOutFemale = document.getElementById('statTransferOutFemale');
-  const statTransferOutPercent = document.getElementById('statTransferOutPercent');
-
-  const statTotalDropout = document.getElementById('statTotalDropout');
-  const statDropoutFemale = document.getElementById('statDropoutFemale');
-  const statDropoutPercent = document.getElementById('statDropoutPercent');
-
-  const statRepeaterTotal = document.getElementById('statRepeaterTotal');
-  const statRepeaterFemale = document.getElementById('statRepeaterFemale');
-  const statRepeaterPercent = document.getElementById('statRepeaterPercent');
-
-  const statTotalStudents = document.getElementById('statTotalStudents');
-  const statFemaleStudents = document.getElementById('statFemaleStudents');
-  const statFemalePercent = document.getElementById('statFemalePercent');
-
-  // Modal elements
-  const detailModal = document.getElementById('detailModal');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const modalContent = document.getElementById('modalContent');
-  const modalTitle = document.getElementById('modalTitle');
+  const passedRegisteredLabel = document.getElementById('passedRegisteredLabel');
+  const augustPrevYearContainer = document.getElementById('augustPrevYearContainer');
+  const augustPrevYearLabel = document.getElementById('augustPrevYearLabel');
+  const augustPrevYearTotal = document.getElementById('augustPrevYearTotal');
+  const augustPrevYearFemale = document.getElementById('augustPrevYearFemale');
+  const augustPrevYearError = document.getElementById('augustPrevYearError');
+  const repeaterContainer = document.getElementById('repeaterContainer');
+  const repeaterLabel = document.getElementById('repeaterLabel');
+  const fieldTransferInLabel = document.getElementById('fieldTransferInLabel');
+  const fieldTransferOutLabel = document.getElementById('fieldTransferOutLabel');
+  const fieldDropoutLabel = document.getElementById('fieldDropoutLabel');
+  const fieldActualLabel = document.getElementById('fieldActualLabel');
+  const calcFormulaText = document.getElementById('calcFormulaText');
 
   // Initialize Application
   initApp();
 
   function initApp() {
     loadRecordsFromStorage();
-    setupLaoMonthDropdowns();
-    setupSearchFilterDropdowns();
-    populateDistrictDropdowns();
+    setupTheme();
+    populateAllDropdowns();
     setupEventListeners();
+    updateMonthDynamicLabels();
+    calculateActualAttending();
     renderApp();
+    syncSchoolsFromGoogleSheet();
   }
 
-  // Populate Lao Month and Academic Year (ສົກຮຽນ) Selectors
-  function setupLaoMonthDropdowns() {
-    if (!entryLaoMonthSelect || !entryAcademicYearSelect) return;
+  function updateMonthDynamicLabels() {
+    if (!entryLaoMonthSelect) return;
+    const val = (entryLaoMonthSelect.value || "").trim();
+    if (val === "08" || val === "ສິງຫາ") {
+      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍປີຜ່ານມາ <span class="req">*</span>';
+      if (augustPrevYearLabel) augustPrevYearLabel.innerHTML = '8. ນັກຮຽນທ້າຍປີຜ່ານມາ-ມາລົງທະບຽນຮຽນຕົວຈິງ <span class="req">*</span>';
+      if (repeaterLabel) repeaterLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ <span class="req">*</span>';
+      if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
+      if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ) + (ຄ້າງຫ້ອງ) + (ຍ້າຍເຂົ້າ) - (ຍ້າຍອອກ) - (ປະລະ)';
 
-    entryLaoMonthSelect.innerHTML = '<option value="">-- ເລືອກເດືອນ --</option>';
-    LAO_MONTHS.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.value;
-      opt.textContent = m.name;
-      entryLaoMonthSelect.appendChild(opt);
-    });
-
-    entryAcademicYearSelect.innerHTML = '';
-    ACADEMIC_YEARS.forEach(ay => {
-      const opt = document.createElement('option');
-      opt.value = ay;
-      opt.textContent = `ສົກຮຽນ ${ay}`;
-      if (ay === "2026-2027") opt.selected = true;
-      entryAcademicYearSelect.appendChild(opt);
-    });
-
-    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-    entryLaoMonthSelect.value = currentMonth;
-  }
-
-  // Populate Filter Month & Academic Year Dropdowns
-  function setupSearchFilterDropdowns() {
-    if (filterMonth) {
-      filterMonth.innerHTML = '<option value="">ທຸກໆເດືອນ</option>';
-      LAO_MONTHS.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.value;
-        opt.textContent = m.name;
-        filterMonth.appendChild(opt);
-      });
-    }
-
-    if (filterAcademicYear) {
-      filterAcademicYear.innerHTML = '<option value="">ທຸກໆສົກຮຽນ</option>';
-      ACADEMIC_YEARS.forEach(ay => {
-        const opt = document.createElement('option');
-        opt.value = ay;
-        opt.textContent = `ສົກຮຽນ ${ay}`;
-        filterAcademicYear.appendChild(opt);
-      });
-    }
-  }
-
-  // Convert raw entry_month string into formatted Lao Month + Academic Year
-  function getLaoMonthText(rawMonthStr) {
-    if (!rawMonthStr) return "-";
-    
-    let monthVal = "";
-    let yearVal = "";
-
-    if (rawMonthStr.includes(':')) {
-      const parts = rawMonthStr.split(':');
-      yearVal = parts[0];
-      monthVal = parts[1];
-    } else if (rawMonthStr.includes('-')) {
-      const parts = rawMonthStr.split('-');
-      if (parts.length === 3) {
-        yearVal = `${parts[0]}-${parts[1]}`;
-        monthVal = parts[2];
-      } else {
-        yearVal = parts[0];
-        monthVal = parts[1];
-      }
+      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
+      if (repeaterContainer) repeaterContainer.style.display = 'block';
     } else {
-      monthVal = rawMonthStr;
-    }
+      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <span class="req">*</span>';
+      if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '8. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
+      if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '10. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 11. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ນັກຮຽນທ້າຍເດືອນ) + (ຍ້າຍເຂົ້າ) - (ຍ້າຍອອກ) - (ປະລະ)';
 
-    const mObj = LAO_MONTHS.find(m => m.value === monthVal || m.name.includes(monthVal) || m.short.includes(monthVal));
-    const monthName = mObj ? `ເດືອນ${mObj.short}` : `ເດືອນ ${monthVal}`;
-
-    if (yearVal) {
-      return yearVal.includes('-') ? `${monthName} (${yearVal})` : `${monthName} ${yearVal}`;
+      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'none';
+      if (augustPrevYearTotal) augustPrevYearTotal.value = 0;
+      if (augustPrevYearFemale) augustPrevYearFemale.value = 0;
+      if (augustPrevYearError) augustPrevYearError.style.display = 'none';
+      if (repeaterContainer) repeaterContainer.style.display = 'none';
+      if (repeaterTotal) repeaterTotal.value = 0;
+      if (repeaterFemale) repeaterFemale.value = 0;
     }
-    return monthName;
+    validateAugustCounts();
+    calculateActualAttending();
   }
 
-  function getRecordAcademicYear(rawMonthStr) {
-    if (!rawMonthStr) return "";
-    if (rawMonthStr.includes(':')) return rawMonthStr.split(':')[0];
-    if (rawMonthStr.includes('-')) {
-      const parts = rawMonthStr.split('-');
-      if (parts.length === 3) return `${parts[0]}-${parts[1]}`;
-      return parts[0];
+  function validateAugustCounts() {
+    if (!entryLaoMonthSelect) return true;
+    const val = (entryLaoMonthSelect.value || "").trim();
+    if (val !== "08" && val !== "ສິງຫາ") {
+      if (augustPrevYearError) augustPrevYearError.style.display = 'none';
+      return true;
     }
-    return "";
+
+    const maxTotal = parseInt(passedRegisteredTotal?.value) || 0;
+    const maxFemale = parseInt(passedRegisteredFemale?.value) || 0;
+    const curTotal = parseInt(augustPrevYearTotal?.value) || 0;
+    const curFemale = parseInt(augustPrevYearFemale?.value) || 0;
+
+    let isValid = true;
+    let errorMsgs = [];
+
+    if (curTotal > maxTotal) {
+      isValid = false;
+      errorMsgs.push(`ທັງໝົດ (${curTotal}) ເກີນ ${maxTotal}`);
+    }
+    if (curFemale > maxFemale) {
+      isValid = false;
+      errorMsgs.push(`ຍິງ (${curFemale}) ເກີນ ${maxFemale}`);
+    }
+
+    if (!isValid && augustPrevYearError) {
+      augustPrevYearError.style.display = 'block';
+      augustPrevYearError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ຈຳນວນປ້ອນໄດ້ຕ້ອງບໍ່ເກີນ ນັກເສັງຜ່ານປີຜ່ານມາ (ຊ່ອງ 7: ທັງໝົດ ${maxTotal}, ຍິງ ${maxFemale}) - ${errorMsgs.join(', ')}`;
+    } else if (augustPrevYearError) {
+      augustPrevYearError.style.display = 'none';
+    }
+
+    return isValid;
   }
 
-  function getRecordMonthCode(rawMonthStr) {
-    if (!rawMonthStr) return "";
-    if (rawMonthStr.includes(':')) return rawMonthStr.split(':')[1];
-    if (rawMonthStr.includes('-')) {
-      const parts = rawMonthStr.split('-');
-      if (parts.length === 3) return parts[2];
-      return parts[1];
-    }
-    return rawMonthStr;
+  // Validate female ≤ total for all pairs
+  function validateFemaleCounts() {
+    const pairs = [
+      { tot: passedRegisteredTotal,  fem: passedRegisteredFemale,  errId: 'err_passedRegistered' },
+      { tot: augustPrevYearTotal,    fem: augustPrevYearFemale,    errId: 'err_augustPrevYear' },
+      { tot: transferInTotal,        fem: transferInFemale,        errId: 'err_transferIn' },
+      { tot: transferOutTotal,       fem: transferOutFemale,       errId: 'err_transferOut' },
+      { tot: dropoutTotal,           fem: dropoutFemale,           errId: 'err_dropout' },
+      { tot: repeaterTotal,          fem: repeaterFemale,          errId: 'err_repeater' },
+    ];
+
+    let allValid = true;
+    pairs.forEach(({ tot, fem, errId }) => {
+      const errEl = document.getElementById(errId);
+      if (!tot || !fem || !errEl) return;
+      const t = parseInt(tot.value) || 0;
+      const f = parseInt(fem.value) || 0;
+      if (f > t) {
+        errEl.style.display = 'block';
+        allValid = false;
+      } else {
+        errEl.style.display = 'none';
+      }
+    });
+    return allValid;
   }
 
+  // Theme setup
+  function setupTheme() {
+    const savedTheme = localStorage.getItem('lao_app_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('lao_app_theme', newTheme);
+        updateThemeIcon(newTheme);
+      });
+    }
+  }
+
+  function updateThemeIcon(theme) {
+    if (!themeToggleBtn) return;
+    const icon = themeToggleBtn.querySelector('i');
+    if (icon) {
+      icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+  }
+
+  // Load records strictly from LocalStorage (User records only)
   function loadRecordsFromStorage() {
-    const saved = localStorage.getItem('lao_school_records');
-    if (saved) {
-      try {
-        records = JSON.parse(saved);
-      } catch (e) {
+    try {
+      const saved = localStorage.getItem('lao_school_records');
+      if (saved !== null) {
+        records = JSON.parse(saved) || [];
+      } else if (typeof SAMPLE_INITIAL_RECORDS !== 'undefined' && Array.isArray(SAMPLE_INITIAL_RECORDS)) {
+        records = [...SAMPLE_INITIAL_RECORDS];
+        localStorage.setItem('lao_school_records', JSON.stringify(records));
+      } else {
         records = [];
       }
-    } else {
+    } catch (e) {
       records = [];
+    }
+
+    // ✅ One-time migration: fix old education_level values
+    const LEVEL_MAP = {
+      'ມັດທະຍົມຕອນຕົ້ນ': 'ມັດທະຍົມສຶກສາຕອນຕົ້ນ'
+    };
+    let migrated = false;
+    records.forEach(r => {
+      if (LEVEL_MAP[r.education_level]) {
+        r.education_level = LEVEL_MAP[r.education_level];
+        migrated = true;
+      }
+    });
+    if (migrated) {
+      localStorage.setItem('lao_school_records', JSON.stringify(records));
     }
   }
 
   function saveRecordsToStorage() {
     localStorage.setItem('lao_school_records', JSON.stringify(records));
+    localStorage.setItem('lao_school_records_updated_at', Date.now().toString());
   }
 
-  // Populate District Dropdowns from Pre-loaded Presets + Imported Excel
+  // Populate All Form Dropdowns cleanly
+  function populateAllDropdowns() {
+    populateDistrictDropdowns();
+    populateSchoolDropdown();
+    populateEducationLevelDropdown();
+    populateGradeLevelDropdown();
+    populateLaoMonthDropdowns();
+    populateAcademicYearDropdowns();
+  }
+
   function populateDistrictDropdowns() {
-    const importedDistricts = JSON.parse(localStorage.getItem('lao_excel_custom_districts') || '{}');
-    const allDistrictsSet = new Set([
-      ...Object.keys(DEFAULT_LAO_DISTRICTS),
-      ...Object.keys(importedDistricts)
-    ]);
+    const districts = ["ເມືອງໄຊ", "ເມືອງຫຼາ", "ເມືອງນາໝໍ້", "ເມືອງງາ", "ເມືອງແບງ", "ເມືອງຮຸນ", "ເມືອງປາກແບງ"];
 
     if (districtSelect) {
+      districtSelect.disabled = false;
+      const curVal = districtSelect.value;
       districtSelect.innerHTML = '<option value="">-- ເລືອກເມືອງ --</option>';
-      allDistrictsSet.forEach(distName => {
+      districts.forEach(d => {
         const opt = document.createElement('option');
-        opt.value = distName;
-        opt.textContent = distName;
+        opt.value = d;
+        opt.textContent = d;
+        if (d === curVal) opt.selected = true;
         districtSelect.appendChild(opt);
       });
     }
 
     if (filterDistrict) {
       filterDistrict.innerHTML = '<option value="">ທຸກໆເມືອງ (7 ເມືອງ)</option>';
-      allDistrictsSet.forEach(distName => {
-        const filterOpt = document.createElement('option');
-        filterOpt.value = distName;
-        filterOpt.textContent = distName;
-        filterDistrict.appendChild(filterOpt);
+      districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        filterDistrict.appendChild(opt);
+      });
+    }
+
+    if (unsubmittedFilterDistrict) {
+      unsubmittedFilterDistrict.innerHTML = '<option value="">ທຸກໆເມືອງ (7 ເມືອງ)</option>';
+      districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        unsubmittedFilterDistrict.appendChild(opt);
       });
     }
   }
 
-  // Populate School Dropdown based on selected district (Pre-loaded + Excel)
-  function populateSchools(selectedDistrict) {
+  function populateSchoolDropdown(selectedDistrict = "") {
     if (!schoolSelect) return;
 
-    schoolSelect.innerHTML = '<option value="">-- ເລືອກໂຮງຮຽນ --</option>';
-    
     if (!selectedDistrict) {
       schoolSelect.disabled = true;
       schoolSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກເມືອງກ່ອນ --</option>';
+      if (schoolCodeInput) schoolCodeInput.value = "";
+      resetLevelAndGradeDropdowns();
       return;
     }
 
-    let schoolsList = [];
+    schoolSelect.disabled = false;
+    const curVal = schoolSelect.value;
+    schoolSelect.innerHTML = '<option value="">-- ເລືອກໂຮງຮຽນ --</option>';
 
-    if (DEFAULT_LAO_DISTRICTS[selectedDistrict]) {
-      DEFAULT_LAO_DISTRICTS[selectedDistrict].forEach(s => {
-        if (!schoolsList.includes(s)) schoolsList.push(s);
-      });
+    let list = [];
+    if (typeof DEFAULT_LAO_DISTRICTS !== 'undefined' && DEFAULT_LAO_DISTRICTS[selectedDistrict]) {
+      list = [...DEFAULT_LAO_DISTRICTS[selectedDistrict]];
     }
 
-    const importedDistricts = JSON.parse(localStorage.getItem('lao_excel_custom_districts') || '{}');
-    if (importedDistricts[selectedDistrict]) {
-      importedDistricts[selectedDistrict].forEach(s => {
-        if (!schoolsList.includes(s)) schoolsList.push(s);
-      });
-    }
+    list = Array.from(new Set(list));
 
-    if (schoolsList.length > 0) {
-      schoolsList.forEach(sch => {
-        const opt = document.createElement('option');
-        opt.value = sch;
-        opt.textContent = sch;
-        schoolSelect.appendChild(opt);
-      });
-      schoolSelect.disabled = false;
-    } else {
+    if (list.length === 0) {
       schoolSelect.disabled = true;
       schoolSelect.innerHTML = '<option value="">-- ບໍ່ມີໂຮງຮຽນໃນເມືອງນີ້ --</option>';
-    }
-  }
-
-  // Auto-filter Education Level options based on selected School Prefix (ປ.ຖ / ມ.ຕ / ມ.ສ)
-  function handleSchoolSelectChange(schName) {
-    if (!schName) {
-      resetEducationLevelOptions();
+      resetLevelAndGradeDropdowns();
       return;
     }
 
-    const lowerSch = schName.toLowerCase();
-
-    if (lowerSch.includes('ປ.ຖ') || lowerSch.includes('ປະຖົມ')) {
-      setEducationLevelOptions(["ປະຖົມສຶກສາ"], "ປະຖົມສຶກສາ");
-    } else if (lowerSch.includes('ມ.ຕ')) {
-      setEducationLevelOptions(["ມັດທະຍົມຕອນຕົ້ນ"], "ມັດທະຍົມຕອນຕົ້ນ");
-    } else if (lowerSch.includes('ມ.ສ') || lowerSch.includes('ມັດທະຍົມສົມບູນ')) {
-      setEducationLevelOptions(["ມັດທະຍົມສົມບູນ"], "ມັດທະຍົມສົມບູນ");
-    } else {
-      resetEducationLevelOptions();
-    }
-  }
-
-  function setEducationLevelOptions(allowedLevels, defaultSelected = "") {
-    if (!educationLevelSelect) return;
-    educationLevelSelect.innerHTML = '<option value="">-- ເລືອກຊັ້ນຮຽນ --</option>';
-    allowedLevels.forEach(lvl => {
+    list.forEach(sch => {
       const opt = document.createElement('option');
-      opt.value = lvl;
-      opt.textContent = lvl;
-      if (lvl === defaultSelected) opt.selected = true;
-      educationLevelSelect.appendChild(opt);
+      opt.value = sch;
+      opt.textContent = sch;
+      if (sch === curVal) opt.selected = true;
+      schoolSelect.appendChild(opt);
     });
 
-    if (defaultSelected) {
-      populateGrades(defaultSelected);
+    if (!curVal) {
+      resetLevelAndGradeDropdowns();
     }
   }
 
-  function resetEducationLevelOptions() {
-    if (!educationLevelSelect || !gradeLevelSelect) return;
+  function resetLevelAndGradeDropdowns() {
+    if (educationLevelSelect) {
+      educationLevelSelect.disabled = true;
+      educationLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>';
+    }
+    if (gradeLevelSelect) {
+      gradeLevelSelect.disabled = true;
+      gradeLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>';
+    }
+  }
 
+  function populateEducationLevelDropdown() {
+    if (!educationLevelSelect) return;
+    if (educationLevelSelect.disabled) return;
     educationLevelSelect.innerHTML = `
       <option value="">-- ເລືອກຊັ້ນຮຽນ --</option>
       <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
-      <option value="ມັດທະຍົມຕອນຕົ້ນ">ມັດທະຍົມຕອນຕົ້ນ</option>
+      <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
       <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
     `;
-    gradeLevelSelect.disabled = true;
-    gradeLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກຊັ້ນຮຽນກ່ອນ --</option>';
   }
 
-  // Populate Grade Levels based on selected Education Level (Cascading)
-  function populateGrades(selectedLevel) {
+  function populateGradeLevelDropdown(selectedLevel = "") {
     if (!gradeLevelSelect) return;
-    gradeLevelSelect.innerHTML = '<option value="">-- ເລືອກຂັ້ນຮຽນ --</option>';
-    
+
     if (!selectedLevel) {
       gradeLevelSelect.disabled = true;
       gradeLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກຊັ້ນຮຽນກ່ອນ --</option>';
       return;
     }
 
-    let gradeList = EDUCATION_LEVELS[selectedLevel] || [];
+    gradeLevelSelect.disabled = false;
+    const curVal = gradeLevelSelect.value;
+    gradeLevelSelect.innerHTML = '<option value="">-- ເລືອກຂັ້ນຮຽນ --</option>';
 
-    const customGrades = JSON.parse(localStorage.getItem('lao_excel_custom_grades') || '{}');
-    if (customGrades[selectedLevel]) {
-      customGrades[selectedLevel].forEach(cg => {
-        if (!gradeList.includes(cg)) gradeList.push(cg);
+    let grades = [];
+    if (typeof EDUCATION_LEVELS !== 'undefined' && EDUCATION_LEVELS[selectedLevel]) {
+      grades = [...EDUCATION_LEVELS[selectedLevel]];
+    } else {
+      if (selectedLevel === "ປະຖົມສຶກສາ") grades = ["ປ.1", "ປ.2", "ປ.3", "ປ.4", "ປ.5"];
+      else if (selectedLevel === "ມັດທະຍົມສຶກສາຕອນຕົ້ນ") grades = ["ມ.1", "ມ.2", "ມ.3", "ມ.4"];
+      else if (selectedLevel === "ມັດທະຍົມສົມບູນ") grades = ["ມ.1", "ມ.2", "ມ.3", "ມ.4", "ມ.5", "ມ.6", "ມ.7"];
+    }
+
+    grades = Array.from(new Set(grades));
+
+    grades.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = g;
+      if (g === curVal) opt.selected = true;
+      gradeLevelSelect.appendChild(opt);
+    });
+  }
+
+  function populateLaoMonthDropdowns() {
+    const months = [
+      { value: "01", name: "ມັງກອນ" },
+      { value: "02", name: "ກຸມພາ" },
+      { value: "03", name: "ມີນາ" },
+      { value: "04", name: "ເມສາ" },
+      { value: "05", name: "ພຶດສະພາ" },
+      { value: "06", name: "ມິຖຸນາ" },
+      { value: "07", name: "ກໍລະກົດ" },
+      { value: "08", name: "ສິງຫາ" },
+      { value: "09", name: "ກັນຍາ" },
+      { value: "10", name: "ຕຸລາ" },
+      { value: "11", name: "ພະຈິກ" },
+      { value: "12", name: "ທັນວາ" }
+    ];
+
+    if (entryLaoMonthSelect) {
+      const cur = entryLaoMonthSelect.value || String(new Date().getMonth() + 1).padStart(2, '0');
+      entryLaoMonthSelect.innerHTML = '<option value="">-- ເລືອກເດືອນ --</option>';
+      months.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = m.name;
+        if (m.value === cur || m.name === cur) opt.selected = true;
+        entryLaoMonthSelect.appendChild(opt);
       });
     }
 
-    gradeList.forEach(grade => {
-      const opt = document.createElement('option');
-      opt.value = grade;
-      opt.textContent = grade;
-      gradeLevelSelect.appendChild(opt);
-    });
-
-    gradeLevelSelect.disabled = false;
+    if (filterMonth) {
+      filterMonth.innerHTML = '<option value="">ທຸກໆເດືອນ</option>';
+      months.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = m.name;
+        filterMonth.appendChild(opt);
+      });
+    }
   }
 
-  // Setup Event Listeners
-  function setupEventListeners() {
-    if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+  function populateAcademicYearDropdowns() {
+    const years = ["2026-2027", "2027-2028", "2028-2029", "2029-2030", "2030-2031"];
 
+    if (entryAcademicYearSelect) {
+      const cur = entryAcademicYearSelect.value || "2026-2027";
+      entryAcademicYearSelect.innerHTML = '';
+      years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === cur) opt.selected = true;
+        entryAcademicYearSelect.appendChild(opt);
+      });
+    }
+
+    if (filterAcademicYear) {
+      filterAcademicYear.innerHTML = '<option value="">ທຸກໆສົກຮຽນ</option>';
+      years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        filterAcademicYear.appendChild(opt);
+      });
+    }
+  }
+
+  // School Code Lookup Helper
+  function lookupSchoolCode(schName, district = '') {
+    if (!schName) return '';
+    const clean = schName.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+
+    if (typeof DEFAULT_SCHOOL_CODES !== 'undefined') {
+      if (district && DEFAULT_SCHOOL_CODES[district.trim() + '_' + clean]) {
+        return DEFAULT_SCHOOL_CODES[district.trim() + '_' + clean];
+      }
+      if (DEFAULT_SCHOOL_CODES[clean]) {
+        return DEFAULT_SCHOOL_CODES[clean];
+      }
+    }
+
+    const noPrefix = clean.replace(/^(ປະຖົມ\s*ປະຖົມ|ປະຖົມ|ປ\.ຖ|ມ\.ສ|ມ\.ຕ)\s*/g, '').trim();
+    if (typeof DEFAULT_SCHOOL_CODES !== 'undefined') {
+      if (district) {
+        const distPrefix = district.trim() + '_';
+        for (const [key, code] of Object.entries(DEFAULT_SCHOOL_CODES)) {
+          if (key.startsWith(distPrefix)) {
+            const kName = key.slice(distPrefix.length).replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/^(ປະຖົມ\s*ປະຖົມ|ປະຖົມ|ປ\.ຖ|ມ\.ສ|ມ\.ຕ)\s*/g, '').trim();
+            if (kName === noPrefix && code) return code;
+          }
+        }
+      }
+      for (const [key, code] of Object.entries(DEFAULT_SCHOOL_CODES)) {
+        const keyClean = key.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/^(ປະຖົມ\s*ປະຖົມ|ປະຖົມ|ປ\.ຖ|ມ\.ສ|ມ\.ຕ)\s*/g, '').trim();
+        if (keyClean === noPrefix && code) return code;
+      }
+    }
+    return '';
+  }
+
+  // Event Listeners setup
+  function setupEventListeners() {
     if (districtSelect) {
       districtSelect.addEventListener('change', (e) => {
-        populateSchools(e.target.value);
+        populateSchoolDropdown(e.target.value);
       });
     }
 
     if (schoolSelect) {
       schoolSelect.addEventListener('change', (e) => {
-        handleSchoolSelectChange(e.target.value);
+        const schName = e.target.value;
+        if (!schName) {
+          if (schoolCodeInput) schoolCodeInput.value = "";
+          resetLevelAndGradeDropdowns();
+          return;
+        }
+
+        if (schoolCodeInput) schoolCodeInput.value = lookupSchoolCode(schName);
+
+        // Auto select & restrict Education Level & Grade Level based on selected school
+        if (educationLevelSelect) {
+          educationLevelSelect.disabled = false;
+
+          if (schName.includes('ປ.ຖ') || schName.includes('ປະຖົມ')) {
+            educationLevelSelect.innerHTML = '<option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>';
+            educationLevelSelect.value = "ປະຖົມສຶກສາ";
+            populateGradeLevelDropdown("ປະຖົມສຶກສາ");
+          } else if (schName.includes('ມ.ຕ')) {
+            educationLevelSelect.innerHTML = '<option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>';
+            educationLevelSelect.value = "ມັດທະຍົມສຶກສາຕອນຕົ້ນ";
+            populateGradeLevelDropdown("ມັດທະຍົມສຶກສາຕອນຕົ້ນ");
+          } else if (schName.includes('ມ.ສ') || schName.includes('ມັດທະຍົມສົມບູນ')) {
+            educationLevelSelect.innerHTML = '<option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>';
+            educationLevelSelect.value = "ມັດທະຍົມສົມບູນ";
+            populateGradeLevelDropdown("ມັດທະຍົມສົມບູນ");
+          } else {
+            educationLevelSelect.innerHTML = `
+              <option value="">-- ເລືອກຊັ້ນຮຽນ --</option>
+              <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
+              <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
+              <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
+            `;
+            populateGradeLevelDropdown();
+          }
+        }
       });
     }
 
     if (educationLevelSelect) {
       educationLevelSelect.addEventListener('change', (e) => {
-        populateGrades(e.target.value);
+        populateGradeLevelDropdown(e.target.value);
       });
     }
 
-    document.querySelectorAll('.calc-trigger').forEach(input => {
-      input.addEventListener('input', calculateActualAttending);
-    });
-    
-    if (recalculateBtn) recalculateBtn.addEventListener('click', calculateActualAttending);
+    if (entryLaoMonthSelect) {
+      entryLaoMonthSelect.addEventListener('change', updateMonthDynamicLabels);
+    }
 
-    setupValidationWatchers();
+    // Number Inputs Auto Calculation & Validation
+    const numInputs = [
+      passedRegisteredTotal, passedRegisteredFemale,
+      augustPrevYearTotal, augustPrevYearFemale,
+      transferInTotal, transferInFemale,
+      transferOutTotal, transferOutFemale,
+      dropoutTotal, dropoutFemale,
+      repeaterTotal, repeaterFemale
+    ];
+
+    numInputs.forEach(inp => {
+      if (inp) {
+        inp.addEventListener('input', () => {
+          calculateActualAttending();
+          validateAugustCounts();
+          validateFemaleCounts();
+        });
+      }
+    });
+
+    if (recalculateBtn) recalculateBtn.addEventListener('click', calculateActualAttending);
 
     if (studentDataForm) studentDataForm.addEventListener('submit', handleFormSubmit);
     if (resetFormBtn) resetFormBtn.addEventListener('click', resetForm);
 
+    // Dashboard Filters
     if (searchInput) searchInput.addEventListener('input', renderTable);
     if (filterDistrict) filterDistrict.addEventListener('change', renderTable);
     if (filterLevel) filterLevel.addEventListener('change', renderTable);
     if (filterGrade) filterGrade.addEventListener('change', renderTable);
     if (filterMonth) filterMonth.addEventListener('change', renderTable);
     if (filterAcademicYear) filterAcademicYear.addEventListener('change', renderTable);
-
     if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetSearchFilters);
-
+    if (unsubmittedFilterDistrict) unsubmittedFilterDistrict.addEventListener('change', renderSubmissionStats);
     if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
-    if (printReportBtn) printReportBtn.addEventListener('click', () => window.print());
-
-    if (importExcelModalBtn) importExcelModalBtn.addEventListener('click', () => excelImportModal.classList.add('active'));
-    if (closeExcelModalBtn) closeExcelModalBtn.addEventListener('click', closeExcelModal);
-    if (cancelExcelModalBtn) cancelExcelModalBtn.addEventListener('click', closeExcelModal);
-
-    if (browseExcelFileBtn) browseExcelFileBtn.addEventListener('click', () => excelFileInput.click());
-    if (excelDropzone) {
-      excelDropzone.addEventListener('click', (e) => {
-        if (e.target !== browseExcelFileBtn) excelFileInput.click();
-      });
-
-      excelDropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        excelDropzone.classList.add('dragover');
-      });
-
-      excelDropzone.addEventListener('dragleave', () => excelDropzone.classList.remove('dragover'));
-      excelDropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        excelDropzone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-          handleExcelFileSelect(e.dataTransfer.files[0]);
-        }
-      });
-    }
-
-    if (excelFileInput) {
-      excelFileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-          handleExcelFileSelect(e.target.files[0]);
-        }
-      });
-    }
-
-    if (confirmExcelImportBtn) confirmExcelImportBtn.addEventListener('click', processExcelImport);
-    if (downloadExcelTemplateBtn) downloadExcelTemplateBtn.addEventListener('click', downloadExcelTemplate);
-
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => detailModal.classList.remove('active'));
-    if (detailModal) {
-      detailModal.addEventListener('click', (e) => {
-        if (e.target === detailModal) detailModal.classList.remove('active');
-      });
-    }
   }
 
-  function resetSearchFilters() {
-    if (searchInput) searchInput.value = '';
-    if (filterDistrict) filterDistrict.value = '';
-    if (filterLevel) filterLevel.value = '';
-    if (filterGrade) filterGrade.value = '';
-    if (filterMonth) filterMonth.value = '';
-    if (filterAcademicYear) filterAcademicYear.value = '';
-    renderTable();
-    showToast('ລ້າງຕົວຈຳແນກ (Filter) ຮຽບຮ້ອຍແລ້ວ', 'info');
-  }
-
-  function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    if (themeToggleBtn) themeToggleBtn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-    showToast(`ສະຫຼັບເປັນ ${newTheme === 'dark' ? 'Dark Mode' : 'Light Mode'} ແລ້ວ`, 'info');
-  }
-
+  // Automatic Formula Calculation
   function calculateActualAttending() {
-    if (!passedRegisteredTotal || !actualAttendingTotal) return;
+    const isAugust = entryLaoMonthSelect && ((entryLaoMonthSelect.value || "").trim() === "08" || (entryLaoMonthSelect.value || "").trim() === "ສິງຫາ");
 
-    const passed = parseInt(passedRegisteredTotal.value) || 0;
-    const passedFem = parseInt(passedRegisteredFemale.value) || 0;
+    const trInTot = parseInt(transferInTotal?.value) || 0;
+    const trInFem = parseInt(transferInFemale?.value) || 0;
+    const trOutTot = parseInt(transferOutTotal?.value) || 0;
+    const trOutFem = parseInt(transferOutFemale?.value) || 0;
+    const dropTot  = parseInt(dropoutTotal?.value)    || 0;
+    const dropFem  = parseInt(dropoutFemale?.value)   || 0;
 
-    const tIn = parseInt(transferInTotal.value) || 0;
-    const tInFem = parseInt(transferInFemale.value) || 0;
+    let calcTot = 0;
+    let calcFem = 0;
 
-    const tOut = parseInt(transferOutTotal.value) || 0;
-    const tOutFem = parseInt(transferOutFemale.value) || 0;
+    if (isAugust) {
+      // ສູດ: ລົງທະບຽນ (8) + ຄ້າງຫ້ອງ (9) + ຍ້າຍເຂົ້າ (10) − ຍ້າຍອອກ (11) − ປະລະ (12)
+      const regTot = parseInt(augustPrevYearTotal?.value) || 0;
+      const regFem = parseInt(augustPrevYearFemale?.value) || 0;
+      const repTot = parseInt(repeaterTotal?.value) || 0;
+      const repFem = parseInt(repeaterFemale?.value) || 0;
+      calcTot = Math.max(0, regTot + repTot + trInTot - trOutTot - dropTot);
+      calcFem = Math.max(0, regFem + repFem + trInFem - trOutFem - dropFem);
+    } else {
+      // ສູດ: ທ້າຍເດືອນ + ຍ້າຍເຂົ້າ − ຍ້າຍອອກ − ປະລະ
+      const regTot = parseInt(passedRegisteredTotal?.value)  || 0;
+      const regFem = parseInt(passedRegisteredFemale?.value) || 0;
+      calcTot = Math.max(0, regTot + trInTot - trOutTot - dropTot);
+      calcFem = Math.max(0, regFem + trInFem - trOutFem - dropFem);
+    }
 
-    const drop = parseInt(dropoutTotal.value) || 0;
-    const dropFem = parseInt(dropoutFemale.value) || 0;
-
-    let calcTotal = passed + tIn - tOut - drop;
-    let calcFemale = passedFem + tInFem - tOutFem - dropFem;
-
-    if (calcTotal < 0) calcTotal = 0;
-    if (calcFemale < 0) calcFemale = 0;
-
-    actualAttendingTotal.value = calcTotal;
-    actualAttendingFemale.value = calcFemale;
+    if (actualAttendingTotal)  actualAttendingTotal.value  = calcTot;
+    if (actualAttendingFemale) actualAttendingFemale.value = calcFem;
   }
 
-  function setupValidationWatchers() {
-    if (!passedRegisteredTotal) return;
-
-    const pairs = [
-      { total: passedRegisteredTotal, female: passedRegisteredFemale },
-      { total: transferInTotal, female: transferInFemale },
-      { total: transferOutTotal, female: transferOutFemale },
-      { total: dropoutTotal, female: dropoutFemale },
-      { total: repeaterTotal, female: repeaterFemale },
-      { total: actualAttendingTotal, female: actualAttendingFemale }
-    ];
-
-    pairs.forEach(pair => {
-      if (pair.total && pair.female) {
-        const check = () => {
-          const tot = parseInt(pair.total.value) || 0;
-          const fem = parseInt(pair.female.value) || 0;
-
-          if (fem > tot) {
-            pair.female.style.borderColor = 'var(--accent-danger)';
-            pair.female.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
-          } else {
-            pair.female.style.borderColor = '';
-            pair.female.style.boxShadow = '';
-          }
-        };
-
-        pair.total.addEventListener('input', check);
-        pair.female.addEventListener('input', check);
-      }
-    });
-
-    const checkReasons = () => {
-      const tOutCount = parseInt(transferOutTotal.value) || 0;
-      const dropCount = parseInt(dropoutTotal.value) || 0;
-
-      if (transferOutReason) {
-        if (tOutCount > 0 && !transferOutReason.value.trim()) {
-          transferOutReason.style.borderColor = 'var(--accent-danger)';
-        } else {
-          transferOutReason.style.borderColor = '';
-        }
-      }
-
-      if (dropoutReason) {
-        if (dropCount > 0 && !dropoutReason.value.trim()) {
-          dropoutReason.style.borderColor = 'var(--accent-danger)';
-        } else {
-          dropoutReason.style.borderColor = '';
-        }
-      }
-    };
-
-    if (transferOutTotal) transferOutTotal.addEventListener('input', checkReasons);
-    if (transferOutReason) transferOutReason.addEventListener('input', checkReasons);
-    if (dropoutTotal) dropoutTotal.addEventListener('input', checkReasons);
-    if (dropoutReason) dropoutReason.addEventListener('input', checkReasons);
-  }
-
-  function validateForm() {
-    if (!studentDataForm) return true;
-
-    const pairs = [
-      { total: passedRegisteredTotal, female: passedRegisteredFemale, name: "ເສັງຜ່ານລົງທະບຽນ" },
-      { total: transferInTotal, female: transferInFemale, name: "ຍ້າຍເຂົ້າມາຮຽນໃໝ່" },
-      { total: transferOutTotal, female: transferOutFemale, name: "ຍ້າຍອອກ" },
-      { total: dropoutTotal, female: dropoutFemale, name: "ປະລະການຮຽນ" },
-      { total: repeaterTotal, female: repeaterFemale, name: "ຄ້າງຫ້ອງ" },
-      { total: actualAttendingTotal, female: actualAttendingFemale, name: "ໜ້າຮຽນຕົວຈິງ" }
-    ];
-
-    for (let p of pairs) {
-      if (p.total && p.female) {
-        const tot = parseInt(p.total.value) || 0;
-        const fem = parseInt(p.female.value) || 0;
-        if (fem > tot) {
-          showToast(`ຂໍ້ຜິດພາດ: ຈຳນວນນັກຮຽນຍິງ ຕ້ອງບໍ່ກາຍຈຳນວນນັກຮຽນທັງໝົດ ໃນຊ່ອງ "${p.name}"`, 'error');
-          p.female.focus();
-          return false;
-        }
-      }
-    }
-
-    const tOutVal = parseInt(transferOutTotal.value) || 0;
-    const tOutReasonVal = transferOutReason.value.trim();
-    if (tOutVal > 0 && !tOutReasonVal) {
-      showToast('ຂໍ້ຜິດພາດ: ກະລຸນາປ້ອນ "ເຫດຜົນໃນການຍ້າຍອອກ" (ຍ້ອນມີຈຳນວນນັກຮຽນຍ້າຍອອກ)', 'error');
-      transferOutReason.focus();
-      transferOutReason.style.borderColor = 'var(--accent-danger)';
-      return false;
-    }
-
-    const dropVal = parseInt(dropoutTotal.value) || 0;
-    const dropReasonVal = dropoutReason.value.trim();
-    if (dropVal > 0 && !dropReasonVal) {
-      showToast('ຂໍ້ຜິດພາດ: ກະລຸນາປ້ອນ "ເຫດຜົນໃນການປະລະການຮຽນ" (ຍ້ອນມີຈຳນວນນັກຮຽນປະລະ)', 'error');
-      dropoutReason.focus();
-      dropoutReason.style.borderColor = 'var(--accent-danger)';
-      return false;
-    }
-
-    if (!tOutReasonVal) {
-      showToast('ກະລຸນາປ້ອນ "ເຫດຜົນໃນການຍ້າຍອອກ" (ຖ້າບໍ່ມີໃຫ້ປ້ອນ "-")', 'error');
-      transferOutReason.focus();
-      return false;
-    }
-
-    if (!dropReasonVal) {
-      showToast('ກະລຸນາປ້ອນ "ເຫດຜົນໃນການປະລະການຮຽນ" (ຖ້າບໍ່ມີໃຫ້ປ້ອນ "-")', 'error');
-      dropoutReason.focus();
-      return false;
-    }
-
-    return true;
-  }
-
+  // Form Submit Handler
   function handleFormSubmit(e) {
     e.preventDefault();
 
-    if (!districtSelect.value) {
-      showToast('ກະລຸນາເລືອກເມືອງ', 'error');
+    if (!districtSelect?.value || !schoolSelect?.value || !collectorNameInput?.value || !educationLevelSelect?.value || !gradeLevelSelect?.value) {
+      showToast("ກະລຸນາ ປ້ອນຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ (*) ໃຫ້ຄົບຖ້ວນ!", "error");
       return;
     }
 
-    if (!validateForm()) return;
-
-    const id = recordIdInput.value || `REC-${Date.now()}`;
-    const isEdit = !!recordIdInput.value;
-
-    const formattedLaoMonthStr = `${entryAcademicYearSelect.value}:${entryLaoMonthSelect.value}`;
-
-    const formData = {
-      id: id,
-      district: districtSelect.value,
-      school: schoolSelect.value,
-      collector_name: collectorName.value.trim(),
-      education_level: educationLevelSelect.value,
-      grade_level: gradeLevelSelect.value,
-      entry_month: formattedLaoMonthStr,
-      entry_month_text: getLaoMonthText(formattedLaoMonthStr),
-
-      passed_registered_total: parseInt(passedRegisteredTotal.value) || 0,
-      passed_registered_female: parseInt(passedRegisteredFemale.value) || 0,
-
-      transfer_in_total: parseInt(transferInTotal.value) || 0,
-      transfer_in_female: parseInt(transferInFemale.value) || 0,
-
-      transfer_out_total: parseInt(transferOutTotal.value) || 0,
-      transfer_out_female: parseInt(transferOutFemale.value) || 0,
-      transfer_out_reason: transferOutReason.value.trim(),
-
-      dropout_total: parseInt(dropoutTotal.value) || 0,
-      dropout_female: parseInt(dropoutFemale.value) || 0,
-      dropout_reason: dropoutReason.value.trim(),
-
-      repeater_total: parseInt(repeaterTotal.value) || 0,
-      repeater_female: parseInt(repeaterFemale.value) || 0,
-
-      actual_attending_total: parseInt(actualAttendingTotal.value) || 0,
-      actual_attending_female: parseInt(actualAttendingFemale.value) || 0,
-
-      created_at: isEdit ? (records.find(r => r.id === id)?.created_at || new Date().toLocaleString()) : new Date().toISOString().replace('T', ' ').substring(0, 16)
-    };
-
-    if (isEdit) {
-      const idx = records.findIndex(r => r.id === id);
-      if (idx !== -1) records[idx] = formData;
-      showToast('ອັບເດດຂໍ້ມູນສຳເລັດແລ້ວ!', 'success');
-    } else {
-      records.unshift(formData);
-      showToast('ບັນທຶກຂໍ້ມູນໃໝ່ສຳເລັດແລ້ວ!', 'success');
+    if (!validateAugustCounts()) {
+      showToast("ຢິງທ້າຍປີຜ່ານມາ ຕ້ອງບໍ່ເກີນ ນັກຮຽນທ້າຍປີຜ່ານມາ (ຊ່ອງ 7)!", "error");
+      return;
     }
 
-    // 🟢 Auto-Sync to Google Sheets via Google Apps Script Web App
-    if (GOOGLE_APPS_SCRIPT_URL) {
-      fetch(GOOGLE_APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      }).then(() => {
-        showToast('🟢 ບັນທຶກລົງ Google Sheet ສຳເລັດແລ້ວ!', 'success');
-      }).catch(err => {
-        console.error("Google Sheets Sync Error:", err);
-      });
+    if (!validateFemaleCounts()) {
+      showToast("ຈຳນວນຍິງຕ້ອງບໍ່ເກີນຈຳນວນລວມທຸກຊ່ອງ!", "error");
+      return;
+    }
+
+    calculateActualAttending();
+
+    const recordId = recordIdInput?.value || ("REC-" + Date.now());
+
+    const recordData = {
+      id: recordId,
+      entry_month_only: entryLaoMonthSelect?.value || "",
+      entry_academic_year: entryAcademicYearSelect?.value || "",
+      district: districtSelect.value,
+      school: schoolSelect.value,
+      school_code: schoolCodeInput?.value || lookupSchoolCode(schoolSelect.value),
+      collector_name: collectorNameInput.value,
+      education_level: educationLevelSelect.value,
+      grade_level: gradeLevelSelect.value,
+      passed_registered_total: parseInt(passedRegisteredTotal?.value) || 0,
+      passed_registered_female: parseInt(passedRegisteredFemale?.value) || 0,
+      august_prev_year_total: parseInt(augustPrevYearTotal?.value) || 0,
+      august_prev_year_female: parseInt(augustPrevYearFemale?.value) || 0,
+      transfer_in_total: parseInt(transferInTotal?.value) || 0,
+      transfer_in_female: parseInt(transferInFemale?.value) || 0,
+      transfer_out_total: parseInt(transferOutTotal?.value) || 0,
+      transfer_out_female: parseInt(transferOutFemale?.value) || 0,
+      transfer_out_reason: transferOutReason?.value || "",
+      dropout_total: parseInt(dropoutTotal?.value) || 0,
+      dropout_female: parseInt(dropoutFemale?.value) || 0,
+      dropout_reason: dropoutReason?.value || "",
+      repeater_total: parseInt(repeaterTotal?.value) || 0,
+      repeater_female: parseInt(repeaterFemale?.value) || 0,
+      actual_attending_total: parseInt(actualAttendingTotal?.value) || 0,
+      actual_attending_female: parseInt(actualAttendingFemale?.value) || 0,
+      created_at: new Date().toISOString().replace('T', ' ').substring(0, 16)
+    };
+
+    const existingIdx = records.findIndex(r => r.id === recordId);
+    if (existingIdx >= 0) {
+      records[existingIdx] = recordData;
+      showToast("ອັບເດດຂໍ້ມູນນັກຮຽນ ສຳເລັດແລ້ວ!", "success");
+    } else {
+      records.unshift(recordData);
+      showToast("ບັນທຶກຂໍ້ມູນນັກຮຽນໃໝ່ ສຳເລັດແລ້ວ!", "success");
     }
 
     saveRecordsToStorage();
+    postRecordToGoogleSheet(recordData);
     resetForm();
     renderApp();
   }
 
+  // Reset Form
   function resetForm() {
-    if (!studentDataForm) return;
-
-    studentDataForm.reset();
-    if (recordIdInput) recordIdInput.value = '';
+    if (studentDataForm) studentDataForm.reset();
+    if (recordIdInput) recordIdInput.value = "";
     if (formModeBadge) {
-      formModeBadge.textContent = 'ບັນທຶກຂໍ້ມູນໃໝ່';
-      formModeBadge.style.background = 'rgba(99, 102, 241, 0.15)';
-      formModeBadge.style.color = 'var(--accent-primary)';
+      formModeBadge.textContent = "ບັນທຶກຂໍ້ມູນໃໝ່";
+      formModeBadge.className = "badge-tag";
     }
-    if (submitFormBtn) submitFormBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ບັນທຶກ ແລະ ສົ່ງຂໍ້ມູນ';
-
-    if (schoolSelect) {
-      schoolSelect.disabled = true;
-      schoolSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກເມືອງກ່ອນ --</option>';
-    }
-    
-    if (transferOutReason) transferOutReason.style.borderColor = '';
-    if (dropoutReason) dropoutReason.style.borderColor = '';
-
-    resetEducationLevelOptions();
-    setupLaoMonthDropdowns();
+    populateAllDropdowns();
+    calculateActualAttending();
   }
 
-  window.editRecord = function(id) {
-    const rec = records.find(r => r.id === id);
-    if (!rec) return;
-
-    if (!studentDataForm) {
-      window.location.href = `index.html?edit=${id}`;
-      return;
-    }
-
-    recordIdInput.value = rec.id;
-    formModeBadge.textContent = `ແກ້ໄຂຂໍ້ມູນ: ${rec.id}`;
-    formModeBadge.style.background = 'rgba(245, 158, 11, 0.15)';
-    formModeBadge.style.color = 'var(--accent-warning)';
-    submitFormBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> ອັບເດດຂໍ້ມູນ';
-
-    districtSelect.value = rec.district;
-    populateSchools(rec.district);
-    schoolSelect.value = rec.school;
-
-    collectorName.value = rec.collector_name;
-    
-    handleSchoolSelectChange(rec.school);
-    educationLevelSelect.value = rec.education_level;
-    populateGrades(rec.education_level);
-    gradeLevelSelect.value = rec.grade_level;
-
-    if (rec.entry_month) {
-      const ay = getRecordAcademicYear(rec.entry_month);
-      const mc = getRecordMonthCode(rec.entry_month);
-      if (ay) entryAcademicYearSelect.value = ay;
-      if (mc) entryLaoMonthSelect.value = mc;
-    }
-
-    passedRegisteredTotal.value = rec.passed_registered_total;
-    passedRegisteredFemale.value = rec.passed_registered_female;
-
-    transferInTotal.value = rec.transfer_in_total;
-    transferInFemale.value = rec.transfer_in_female;
-
-    transferOutTotal.value = rec.transfer_out_total;
-    transferOutFemale.value = rec.transfer_out_female;
-    transferOutReason.value = rec.transfer_out_reason || '';
-
-    dropoutTotal.value = rec.dropout_total;
-    dropoutFemale.value = rec.dropout_female;
-    dropoutReason.value = rec.dropout_reason || '';
-
-    repeaterTotal.value = rec.repeater_total;
-    repeaterFemale.value = rec.repeater_female;
-
-    actualAttendingTotal.value = rec.actual_attending_total;
-    actualAttendingFemale.value = rec.actual_attending_female;
-
-    document.getElementById('dataFormCard').scrollIntoView({ behavior: 'smooth' });
-  };
-
-  window.deleteRecord = function(id) {
-    if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລົບຂໍ້ມູນລາຍການນີ້?')) {
-      records = records.filter(r => r.id !== id);
-      saveRecordsToStorage();
-      renderApp();
-      showToast('ລົບຂໍ້ມູນສຳເລັດແລ້ວ', 'info');
-    }
-  };
-
-  window.viewRecordDetail = function(id) {
-    const rec = records.find(r => r.id === id);
-    if (!rec || !detailModal) return;
-
-    modalTitle.textContent = `ລາຍລະອຽດຂໍ້ມູນ: ${rec.school}`;
-    modalContent.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.04); padding: 14px; border-radius: 8px;">
-          <div><strong>ເມືອງ:</strong> ${rec.district}</div>
-          <div><strong>ໂຮງຮຽນ:</strong> ${rec.school}</div>
-          <div><strong>ຊັ້ນ/ຂັ້ນ:</strong> ${rec.education_level} (${rec.grade_level})</div>
-          <div><strong>ເດືອນ / ສົກຮຽນ:</strong> ${getLaoMonthText(rec.entry_month)}</div>
-          <div><strong>ຜູ້ປ້ອນຂໍ້ມູນ:</strong> ${rec.collector_name}</div>
-          <div><strong>ວັນທີບັນທຶກ:</strong> ${rec.created_at}</div>
-        </div>
-
-        <h4 style="color: var(--accent-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-top: 8px;">
-          <i class="fa-solid fa-list-check"></i> ຕົວເລກສະຖິຕິ:
-        </h4>
-
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-          <thead>
-            <tr style="background: rgba(0,0,0,0.2);">
-              <th style="padding: 8px; text-align: left;">ລາຍການ</th>
-              <th style="padding: 8px; text-align: center;">ທັງໝົດ</th>
-              <th style="padding: 8px; text-align: center;">ຍິງ</th>
-              <th style="padding: 8px; text-align: left;">ເຫດຜົນ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding: 8px;">7. ເສັງຜ່ານມາລົງທະບຽນ</td>
-              <td style="padding: 8px; text-align: center;">${rec.passed_registered_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.passed_registered_female}</td>
-              <td style="padding: 8px;">-</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px;">8. ຍ້າຍເຂົ້າມາຮຽນໃໝ່</td>
-              <td style="padding: 8px; text-align: center;">${rec.transfer_in_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.transfer_in_female}</td>
-              <td style="padding: 8px;">-</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px;">9. ຍ້າຍອອກ</td>
-              <td style="padding: 8px; text-align: center;">${rec.transfer_out_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.transfer_out_female}</td>
-              <td style="padding: 8px;">${rec.transfer_out_reason || '-'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px;">10. ປະລະການຮຽນ</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-danger);">${rec.dropout_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.dropout_female}</td>
-              <td style="padding: 8px;">${rec.dropout_reason || '-'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px;">11. ນັກຮຽນຄ້າງຫ້ອງ</td>
-              <td style="padding: 8px; text-align: center;">${rec.repeater_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.repeater_female}</td>
-              <td style="padding: 8px;">-</td>
-            </tr>
-            <tr style="font-weight: bold; background: rgba(16, 185, 129, 0.1);">
-              <td style="padding: 8px; color: var(--accent-success);">12. ໜ້າຮຽນຕົວຈິງທັງໝົດ</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-success);">${rec.actual_attending_total}</td>
-              <td style="padding: 8px; text-align: center; color: var(--accent-pink);">${rec.actual_attending_female}</td>
-              <td style="padding: 8px;">-</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    detailModal.classList.add('active');
-  };
-
-  // EXCEL IMPORT LOGIC
-  function closeExcelModal() {
-    if (!excelImportModal) return;
-    excelImportModal.classList.remove('active');
-    parsedExcelData = null;
-    if (excelFileInput) excelFileInput.value = '';
-    if (excelPreviewContainer) excelPreviewContainer.style.display = 'none';
-    if (confirmExcelImportBtn) confirmExcelImportBtn.disabled = true;
+  // Render Dashboard & Tables
+  function renderApp() {
+    renderKPI();
+    renderTable();
+    renderSubmissionStats();
+    renderReasonSummaries();
+    renderCharts();
+    renderAdvancedCharts();
   }
 
-  function handleExcelFileSelect(file) {
-    if (!file) return;
+  function renderKPI() {
+    let totRegistered = 0, femRegistered = 0;
+    let totStudents   = 0, femStudents   = 0;
+    let totDrop = 0, femDrop = 0;
+    let totTrOut = 0, femTrOut = 0;
+    let totTrIn  = 0, femTrIn  = 0;
+    let totRep   = 0, femRep   = 0;
 
-    if (excelFileNameBadge) excelFileNameBadge.textContent = file.name;
-    const reader = new FileReader();
+    // Filter records according to active search/filters if selected
+    const query = (searchInput?.value || "").toLowerCase();
+    const fDist = filterDistrict?.value || "";
+    const fLvl  = filterLevel?.value || "";
+    const fGrd  = filterGrade?.value || "";
+    const fMth  = filterMonth?.value || "";
+    const fYr   = filterAcademicYear?.value || "";
 
-    reader.onload = function(e) {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-
-        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-        if (!jsonRows || jsonRows.length === 0) {
-          showToast('ບໍ່ພົບຂໍ້ມູນໃນຟາຍ Excel ທີ່ເລືອກ', 'error');
-          return;
-        }
-
-        parsedExcelData = jsonRows;
-        renderExcelPreview(jsonRows);
-        if (confirmExcelImportBtn) confirmExcelImportBtn.disabled = false;
-        showToast(`ອ່ານຟາຍ Excel ສຳເລັດ (${jsonRows.length} ແຖວ)`, 'success');
-
-      } catch (err) {
-        console.error(err);
-        showToast('ບໍ່ສາມາດອ່ານຟາຍ Excel ນີ້ໄດ້. ກະລຸນາກວດສອບຟໍແມັດຟາຍ', 'error');
+    const activeRecs = records.filter(r => {
+      if (fDist && r.district !== fDist) return false;
+      if (fLvl  && r.education_level !== fLvl) return false;
+      if (fGrd  && r.grade_level !== fGrd) return false;
+      if (fMth  && r.entry_month_only !== fMth) return false;
+      if (fYr   && r.entry_academic_year !== fYr) return false;
+      if (query) {
+        const text = `${r.school} ${r.school_code} ${r.collector_name} ${r.district}`.toLowerCase();
+        if (!text.includes(query)) return false;
       }
-    };
-
-    reader.readAsArrayBuffer(file);
-  }
-
-  function renderExcelPreview(rows) {
-    if (!rows || rows.length === 0 || !excelPreviewHead) return;
-
-    excelRowCount.textContent = rows.length;
-    const headers = Object.keys(rows[0]);
-
-    excelPreviewHead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
-
-    const previewRows = rows.slice(0, 10);
-    excelPreviewBody.innerHTML = previewRows.map(row => {
-      return `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`;
-    }).join('');
-
-    excelPreviewContainer.style.display = 'block';
-  }
-
-  function processExcelImport() {
-    if (!parsedExcelData || parsedExcelData.length === 0) return;
-
-    const mode = document.querySelector('input[name="importTarget"]:checked')?.value || 'PRESETS';
-
-    if (mode === 'PRESETS') {
-      let addedDistCount = 0;
-      let addedSchoolCount = 0;
-
-      const customImported = JSON.parse(localStorage.getItem('lao_excel_custom_districts') || '{}');
-
-      parsedExcelData.forEach(row => {
-        const distVal = (row['ເມືອງ'] || row['ຊື່ເມືອງ'] || row['District'] || row['district'] || '').toString().trim();
-        const schoolVal = (row['ໂຮງຮຽນ'] || row['ຊື່ໂຮງຮຽນ'] || row['School'] || row['school'] || '').toString().trim();
-
-        if (distVal) {
-          if (!customImported[distVal]) {
-            customImported[distVal] = [];
-            addedDistCount++;
-          }
-          if (schoolVal && !customImported[distVal].includes(schoolVal)) {
-            customImported[distVal].push(schoolVal);
-            addedSchoolCount++;
-          }
-        }
-      });
-
-      localStorage.setItem('lao_excel_custom_districts', JSON.stringify(customImported));
-
-      populateDistrictDropdowns();
-      showToast(`ນຳເຂົ້າສຳເລັດ! ເພີ່ມ ${addedDistCount} ເມືອງ ແລະ ${addedSchoolCount} ໂຮງຮຽນ ໃສ່ Dropdown ແລ້ວ`, 'success');
-
-    } else {
-      let importedCount = 0;
-
-      parsedExcelData.forEach(row => {
-        const getVal = (keys, defaultVal = "") => {
-          for (let k of keys) {
-            if (row[k] !== undefined && row[k] !== "") return row[k];
-          }
-          return defaultVal;
-        };
-
-        const dist = getVal(['ເມືອງ', 'ຊື່ເມືອງ', 'District', 'district']);
-        const sch = getVal(['ໂຮງຮຽນ', 'ຊື່ໂຮງຮຽນ', 'School', 'school']);
-
-        if (dist && sch) {
-          const defaultAY = entryAcademicYearSelect ? entryAcademicYearSelect.value : "2026-2027";
-          const defaultM = entryLaoMonthSelect ? entryLaoMonthSelect.value : "08";
-          const rawMonth = getVal(['ເດືອນ', 'ເດືອນປ້ອນຂໍ້ມູນ', 'Month', 'entry_month'], `${defaultAY}:${defaultM}`);
-
-          const rec = {
-            id: `REC-EXCEL-${Date.now()}-${Math.floor(Math.random()*1000)}`,
-            district: dist,
-            school: sch,
-            collector_name: getVal(['ຜູ້ປ້ອນຂໍ້ມູນ', 'ຜູ້ປ້ອນ', 'Collector', 'collector_name'], 'Excel Import'),
-            education_level: getVal(['ຊັ້ນຮຽນ', 'Level', 'education_level'], 'ມັດທະຍົມສົມບູນ'),
-            grade_level: getVal(['ຂັ້ນຮຽນ', 'Grade', 'grade_level'], 'ມ.1'),
-            entry_month: rawMonth,
-
-            passed_registered_total: parseInt(getVal(['ເສັງຜ່ານລົງທະບຽນ_ຮວມ', 'ລົງທະບຽນ_ຮວມ', 'PassedTotal'], 0)) || 0,
-            passed_registered_female: parseInt(getVal(['ເສັງຜ່ານລົງທະບຽນ_ຍິງ', 'ລົງທະບຽນ_ຍິງ', 'PassedFemale'], 0)) || 0,
-
-            transfer_in_total: parseInt(getVal(['ຍ້າຍເຂົ້າ_ຮວມ', 'TransferInTotal'], 0)) || 0,
-            transfer_in_female: parseInt(getVal(['ຍ້າຍເຂົ້າ_ຍິງ', 'TransferInFemale'], 0)) || 0,
-
-            transfer_out_total: parseInt(getVal(['ຍ້າຍອອກ_ຮວມ', 'TransferOutTotal'], 0)) || 0,
-            transfer_out_female: parseInt(getVal(['ຍ້າຍອອກ_ຍິງ', 'TransferOutFemale'], 0)) || 0,
-            transfer_out_reason: getVal(['ເຫດຜົນຍ້າຍອອກ', 'TransferOutReason'], '-'),
-
-            dropout_total: parseInt(getVal(['ປະລະ_ຮວມ', 'DropoutTotal'], 0)) || 0,
-            dropout_female: parseInt(getVal(['ປະລະ_ຍິງ', 'DropoutFemale'], 0)) || 0,
-            dropout_reason: getVal(['ເຫດຜົນປະລະ', 'DropoutReason'], '-'),
-
-            repeater_total: parseInt(getVal(['ຄ້າງຫ້ອງ_ຮວມ', 'RepeaterTotal'], 0)) || 0,
-            repeater_female: parseInt(getVal(['ຄ້າງຫ້ອງ_ຍິງ', 'RepeaterFemale'], 0)) || 0,
-
-            actual_attending_total: parseInt(getVal(['ໜ້າຕົວຈິງ_ຮວມ', 'ActualTotal'], 0)) || 0,
-            actual_attending_female: parseInt(getVal(['ໜ້າຕົວຈິງ_ຍິງ', 'ActualFemale'], 0)) || 0,
-
-            created_at: new Date().toISOString().replace('T', ' ').substring(0, 16)
-          };
-
-          if (rec.actual_attending_total === 0) {
-            rec.actual_attending_total = rec.passed_registered_total + rec.transfer_in_total - rec.transfer_out_total - rec.dropout_total;
-            rec.actual_attending_female = rec.passed_registered_female + rec.transfer_in_female - rec.transfer_out_female - rec.dropout_female;
-            if (rec.actual_attending_total < 0) rec.actual_attending_total = 0;
-            if (rec.actual_attending_female < 0) rec.actual_attending_female = 0;
-          }
-
-          records.unshift(rec);
-          importedCount++;
-
-          if (GOOGLE_APPS_SCRIPT_URL) {
-            fetch(GOOGLE_APPS_SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(rec)
-            });
-          }
-        }
-      });
-
-      saveRecordsToStorage();
-      renderApp();
-      showToast(`ນຳເຂົ້າ ${importedCount} ລາຍການສະຖິຕິໃສ່ຕາຕະລາງ ແລະ Google Sheet ສຳເລັດ!`, 'success');
-    }
-
-    closeExcelModal();
-  }
-
-  function downloadExcelTemplate() {
-    const templateData = [
-      {
-        "ເມືອງ": "ເມືອງໄຊ",
-        "ໂຮງຮຽນ": "ໂຮງຮຽນ ມ.ສ ເທດສະບານແຂວງ",
-        "ຊັ້ນຮຽນ": "ມັດທະຍົມສົມບູນ",
-        "ຂັ້ນຮຽນ": "ມ.1",
-        "ຜູ້ປ້ອນຂໍ້ມູນ": "ສົມຈິດ ວົງສະຫວັດ",
-        "ເດືອນ/ສົກຮຽນ": "2026-2027:08",
-        "ເສັງຜ່ານລົງທະບຽນ_ຮວມ": 45,
-        "ເສັງຜ່ານລົງທະບຽນ_ຍິງ": 23,
-        "ຍ້າຍເຂົ້າ_ຮວມ": 3,
-        "ຍ້າຍເຂົ້າ_ຍິງ": 2,
-        "ຍ້າຍອອກ_ຮວມ": 1,
-        "ຍ້າຍອອກ_ຍິງ": 1,
-        "ເຫດຜົນຍ້າຍອອກ": "ຍ້າຍຕາມຄອບຄົວ",
-        "ປະລະ_ຮວມ": 1,
-        "ປະລະ_ຍິງ": 0,
-        "ເຫດຜົນປະລະ": "ຊ່ວຍວຽກຄອບຄົວ",
-        "ຄ້າງຫ້ອງ_ຮວມ": 2,
-        "ຄ້າງຫ້ອງ_ຍິງ": 1,
-        "ໜ້າຕົວຈິງ_ຮວມ": 46,
-        "ໜ້າຕົວຈິງ_ຍິງ": 24
-      }
-    ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "LaoSchoolDataTemplate");
-
-    XLSX.writeFile(workbook, "Lao_School_Data_Template.xlsx");
-    showToast('ດາວໂຫຼດແມ່ແບບ Excel (Template) ສຳເລັດແລ້ວ!', 'success');
-  }
-
-  // EXPORT TO EXCEL (.xlsx) FUNCTIONALITY
-  function exportToExcel() {
-    if (records.length === 0) {
-      showToast('ບໍ່ມີຂໍ້ມູນທີ່ຈະສົ່ງອອກ', 'error');
-      return;
-    }
-
-    const excelRows = records.map(r => {
-      return {
-        "ID": r.id,
-        "ເດືອນ ແລະ ສົກຮຽນ": getLaoMonthText(r.entry_month),
-        "ເມືອງ": r.district,
-        "ໂຮງຮຽນ": r.school,
-        "ຊັ້ນຮຽນ": r.education_level,
-        "ຂັ້ນຮຽນ": r.grade_level,
-        "ຜູ້ປ້ອນຂໍ້ມູນ": r.collector_name,
-
-        "ເສັງຜ່ານລົງທະບຽນ_ທັງໝົດ": r.passed_registered_total,
-        "ເສັງຜ່ານລົງທະບຽນ_ຍິງ": r.passed_registered_female,
-
-        "ຍ້າຍເຂົ້າ_ທັງໝົດ": r.transfer_in_total,
-        "ຍ້າຍເຂົ້າ_ຍິງ": r.transfer_in_female,
-
-        "ຍ້າຍອອກ_ທັງໝົດ": r.transfer_out_total,
-        "ຍ້າຍອອກ_ຍິງ": r.transfer_out_female,
-        "ເຫດຜົນຍ້າຍອອກ": r.transfer_out_reason || "",
-
-        "ປະລະ_ທັງໝົດ": r.dropout_total,
-        "ປະລະ_ຍິງ": r.dropout_female,
-        "ເຫດຜົນປະລະ": r.dropout_reason || "",
-
-        "ຄ້າງຫ້ອງ_ທັງໝົດ": r.repeater_total,
-        "ຄ້າງຫ້ອງ_ຍິງ": r.repeater_female,
-
-        "ໜ້າຕົວຈິງ_ທັງໝົດ": r.actual_attending_total,
-        "ໜ້າຕົວຈິງ_ຍິງ": r.actual_attending_female,
-
-        "ວັນທີບັນທຶກ": r.created_at
-      };
+      return true;
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(excelRows);
+    activeRecs.forEach(r => {
+      const isAug = (r.entry_month_only || "").trim() === "ສິງຫາ" || (r.entry_month_only || "").trim() === "08";
 
-    const colWidths = [
-      { wch: 18 }, { wch: 28 }, { wch: 22 }, { wch: 28 }, { wch: 18 }, { wch: 12 }, { wch: 22 },
-      { wch: 24 }, { wch: 22 }, { wch: 18 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 26 },
-      { wch: 16 }, { wch: 14 }, { wch: 26 }, { wch: 18 }, { wch: 16 }, { wch: 20 }, { wch: 18 }, { wch: 20 }
-    ];
-    worksheet['!cols'] = colWidths;
+      // 1. Registered: Fallback across all possible registered fields
+      const regTot = isAug
+        ? (parseInt(r.august_prev_year_total) || parseInt(r.passed_registered_total) || parseInt(r.registered_total) || 0)
+        : (parseInt(r.passed_registered_total) || parseInt(r.august_prev_year_total) || parseInt(r.registered_total) || 0);
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Student_Data");
+      const regFem = isAug
+        ? (parseInt(r.august_prev_year_female) || parseInt(r.passed_registered_female) || parseInt(r.registered_female) || 0)
+        : (parseInt(r.passed_registered_female) || parseInt(r.august_prev_year_female) || parseInt(r.registered_female) || 0);
 
-    const todayStr = new Date().toISOString().substring(0, 10);
-    XLSX.writeFile(workbook, `Lao_School_Data_Report_${todayStr}.xlsx`);
-    showToast('ສົ່ງອອກຟາຍ Excel (.xlsx) ສຳເລັດແລ້ວ!', 'success');
+      totRegistered += regTot;
+      femRegistered += regFem;
+
+      // 2. Transfer In
+      totTrIn  += parseInt(r.transfer_in_total)  || 0;
+      femTrIn  += parseInt(r.transfer_in_female) || 0;
+
+      // 3. Transfer Out
+      totTrOut += parseInt(r.transfer_out_total)  || 0;
+      femTrOut += parseInt(r.transfer_out_female) || 0;
+
+      // 4. Dropout
+      totDrop  += parseInt(r.dropout_total)       || 0;
+      femDrop  += parseInt(r.dropout_female)      || 0;
+
+      // 5. Repeater
+      totRep   += parseInt(r.repeater_total)       || 0;
+      femRep   += parseInt(r.repeater_female)      || 0;
+
+      // 6. Actual Attending
+      totStudents   += parseInt(r.actual_attending_total)  || 0;
+      femStudents   += parseInt(r.actual_attending_female) || 0;
+    });
+
+    const pct = (f, t) => t > 0 ? ((f / t) * 100).toFixed(2) : '0.00';
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    // Card 1: ລົງທະບຽນ
+    setEl('statRegisteredTotal',   totRegistered.toLocaleString());
+    setEl('statRegisteredFemale',  femRegistered.toLocaleString());
+    setEl('statRegisteredPercent', pct(femRegistered, totRegistered));
+
+    // Card 2: ຍ້າຍເຂົ້າ
+    setEl('statTransferInTotal',   totTrIn.toLocaleString());
+    setEl('statTransferInFemale',  femTrIn.toLocaleString());
+    setEl('statTransferInPercent', pct(femTrIn, totTrIn));
+
+    // Card 3: ຍ້າຍອອກ
+    setEl('statTransferOutTotal',   totTrOut.toLocaleString());
+    setEl('statTransferOutFemale',  femTrOut.toLocaleString());
+    setEl('statTransferOutPercent', pct(femTrOut, totTrOut));
+
+    // Card 4: ປະລະ
+    setEl('statTotalDropout',   totDrop.toLocaleString());
+    setEl('statDropoutFemale',  femDrop.toLocaleString());
+    setEl('statDropoutPercent', pct(femDrop, totDrop));
+
+    // Card 5: ຄ້າງຫ້ອງ
+    setEl('statRepeaterTotal',   totRep.toLocaleString());
+    setEl('statRepeaterFemale',  femRep.toLocaleString());
+    setEl('statRepeaterPercent', pct(femRep, totRep));
+
+    // Card 6: ໜ້າຮຽນຕົວຈິງ
+    setEl('statTotalStudents',  totStudents.toLocaleString());
+    setEl('statFemaleStudents', femStudents.toLocaleString());
+    setEl('statFemalePercent',  pct(femStudents, totStudents));
   }
 
-  // Comprehensive Multi-Criteria Search Engine
   function renderTable() {
     if (!tableBody) return;
 
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-    const selectedDist = filterDistrict ? filterDistrict.value : '';
-    const selectedLvl = filterLevel ? filterLevel.value : '';
-    const selectedGrade = filterGrade ? filterGrade.value : '';
-    const selectedMonth = filterMonth ? filterMonth.value : '';
-    const selectedAY = filterAcademicYear ? filterAcademicYear.value : '';
+    const query = (searchInput?.value || "").toLowerCase();
+    const fDist = filterDistrict?.value || "";
+    const fLvl  = filterLevel?.value || "";
+    const fGrd  = filterGrade?.value || "";
+    const fMth  = filterMonth?.value || "";
+    const fYr   = filterAcademicYear?.value || "";
 
     const filtered = records.filter(r => {
-      const laoMonthText = getLaoMonthText(r.entry_month).toLowerCase();
-      const recAY = getRecordAcademicYear(r.entry_month);
-      const recMonthCode = getRecordMonthCode(r.entry_month);
-
-      const matchQuery = !query || 
-        r.district.toLowerCase().includes(query) || 
-        r.school.toLowerCase().includes(query) || 
-        r.education_level.toLowerCase().includes(query) ||
-        r.grade_level.toLowerCase().includes(query) ||
-        r.collector_name.toLowerCase().includes(query) ||
-        laoMonthText.includes(query) ||
-        recAY.includes(query) ||
-        recMonthCode.includes(query);
-
-      const matchDist = !selectedDist || r.district === selectedDist;
-      const matchLvl = !selectedLvl || r.education_level === selectedLvl;
-      const matchGrade = !selectedGrade || r.grade_level === selectedGrade;
-      const matchMonth = !selectedMonth || recMonthCode === selectedMonth;
-      const matchAY = !selectedAY || recAY === selectedAY;
-
-      return matchQuery && matchDist && matchLvl && matchGrade && matchMonth && matchAY;
+      if (fDist && r.district !== fDist) return false;
+      if (fLvl  && r.education_level !== fLvl) return false;
+      if (fGrd  && r.grade_level !== fGrd) return false;
+      if (fMth  && r.entry_month_only !== fMth) return false;
+      if (fYr   && r.entry_academic_year !== fYr) return false;
+      if (query) {
+        const text = `${r.school} ${r.school_code} ${r.collector_name} ${r.district}`.toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
     });
 
-    if (tableRecordCount) tableRecordCount.textContent = `${filtered.length} ລາຍການ`;
-    tableBody.innerHTML = '';
+    if (tableRecordCount) tableRecordCount.textContent = filtered.length;
 
+    tableBody.innerHTML = '';
     if (filtered.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="11" style="text-align: center; padding: 28px; color: var(--text-muted);">
-            <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 8px; display: block; color: var(--accent-primary);"></i>
-            ບໍ່ພົບຂໍ້ມູນທີ່ກົງກັບເງື່ອນໄຂການຄົ້ນຫາ
-          </td>
-        </tr>
-      `;
+      tableBody.innerHTML = '<tr><td colspan="13" style="text-align:center; padding: 2rem; color: var(--text-muted);">ບໍ່ພົບຂໍ້ມູນຕາມເງື່ອນໄຂທີ່ຄົ້ນຫາ</td></tr>';
       return;
     }
 
-    filtered.forEach(r => {
+    const isAugustRec = r => (r.entry_month_only || "").trim() === "ສິງຫາ" || (r.entry_month_only || "").trim() === "08";
+
+    filtered.forEach((r, idx) => {
+      // ຄຳນວນ "ນັກຮຽນຕົ້ນ" ຕາມເດືອນ
+      const baseLabel = isAugustRec(r) ? "ລົງທະບຽນ" : "ທ້າຍເດືອນ";
+      const baseTotal = isAugustRec(r)
+        ? (r.august_prev_year_total || 0)
+        : (r.passed_registered_total || 0);
+      const baseFemale = isAugustRec(r)
+        ? (r.august_prev_year_female || 0)
+        : (r.passed_registered_female || 0);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${getLaoMonthText(r.entry_month)}</strong></td>
-        <td>${r.district}</td>
-        <td><strong>${r.school}</strong></td>
-        <td><span class="chip chip-primary">${r.education_level} (${r.grade_level})</span></td>
-        <td>${r.passed_registered_total} <span class="female-highlight">(${r.passed_registered_female})</span></td>
-        <td><span class="chip chip-success">+${r.transfer_in_total}</span></td>
-        <td><span class="chip chip-warning">-${r.transfer_out_total}</span></td>
-        <td><span style="color: var(--accent-danger); font-weight: bold;">-${r.dropout_total}</span></td>
-        <td>
-          <strong style="color: var(--accent-success);">${r.actual_attending_total}</strong>
-          <span class="female-highlight">(${r.actual_attending_female})</span>
-        </td>
+        <td>${idx + 1}</td>
+        <td><strong>${r.district}</strong><br><small style="color:var(--text-muted);">${r.entry_month_only || ''} ${r.entry_academic_year || ''}</small></td>
+        <td>${r.school}<br><small style="color:var(--text-muted); font-family:monospace;">${r.school_code || ''}</small></td>
+        <td><strong>${r.grade_level}</strong></td>
         <td>${r.collector_name}</td>
-        <td style="text-align: center;">
-          <div class="table-actions">
-            <button class="btn btn-secondary btn-sm" onclick="viewRecordDetail('${r.id}')" title="ເບິ່ງລາຍລະອຽດ">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="editRecord('${r.id}')" title="ແກ້ໄຂ">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="deleteRecord('${r.id}')" title="ລົບ" style="color: var(--accent-danger);">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-        </td>
+        <td title="${baseLabel}"><strong>${baseTotal.toLocaleString()}</strong><br><small style="color:var(--accent-pink);">ຍິງ: ${baseFemale}</small></td>
+        <td title="ຍ້າຍເຂົ້າ">${r.transfer_in_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.transfer_in_female || 0}</small></td>
+        <td title="ຍ້າຍອອກ">${r.transfer_out_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.transfer_out_female || 0}</small></td>
+        <td title="ປະລະ">${r.dropout_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.dropout_female || 0}</small></td>
+        <td title="ຄ້າງຫ້ອງ">${isAugustRec(r) ? (r.repeater_total || 0) : '-'}<br>${isAugustRec(r) ? `<small style="color:var(--accent-pink);">ຍິງ: ${r.repeater_female || 0}</small>` : ''}</td>
+        <td><strong style="color:var(--accent-success);">${(r.actual_attending_total || 0).toLocaleString()}</strong><br><small style="color:var(--accent-pink);">ຍິງ: ${r.actual_attending_female || 0}</small></td>
+        <td><small>${r.created_at || ''}</small></td>
       `;
       tableBody.appendChild(tr);
     });
   }
 
-  // RENDER COMPREHENSIVE STAT KPI CARDS (WITH EXACT WORDING AND FEMALE PERCENTAGE FOR ALL CARDS)
-  function renderStats() {
-    const regTotal = records.reduce((acc, r) => acc + (r.passed_registered_total || 0), 0);
-    const regFemale = records.reduce((acc, r) => acc + (r.passed_registered_female || 0), 0);
-    const regPct = regTotal > 0 ? ((regFemale / regTotal) * 100).toFixed(1) : 0;
+  function editRecord(id) {
+    const rec = records.find(r => r.id === id);
+    if (!rec) return;
 
-    const tInTotal = records.reduce((acc, r) => acc + (r.transfer_in_total || 0), 0);
-    const tInFemale = records.reduce((acc, r) => acc + (r.transfer_in_female || 0), 0);
-    const tInPct = tInTotal > 0 ? ((tInFemale / tInTotal) * 100).toFixed(1) : 0;
+    if (recordIdInput) recordIdInput.value = rec.id;
+    if (formModeBadge) {
+      formModeBadge.textContent = "ແກ້ໄຂຂໍ້ມູນ";
+      formModeBadge.className = "badge-tag badge-warning";
+    }
 
-    const tOutTotal = records.reduce((acc, r) => acc + (r.transfer_out_total || 0), 0);
-    const tOutFemale = records.reduce((acc, r) => acc + (r.transfer_out_female || 0), 0);
-    const tOutPct = tOutTotal > 0 ? ((tOutFemale / tOutTotal) * 100).toFixed(1) : 0;
+    if (districtSelect) districtSelect.value = rec.district;
+    populateSchoolDropdown(rec.district);
+    if (schoolSelect) schoolSelect.value = rec.school;
+    if (schoolCodeInput) schoolCodeInput.value = rec.school_code || lookupSchoolCode(rec.school);
+    if (collectorNameInput) collectorNameInput.value = rec.collector_name;
+    if (educationLevelSelect) educationLevelSelect.value = rec.education_level;
+    populateGradeLevelDropdown(rec.education_level);
+    if (gradeLevelSelect) gradeLevelSelect.value = rec.grade_level;
+    if (entryLaoMonthSelect) entryLaoMonthSelect.value = rec.entry_month_only;
+    if (entryAcademicYearSelect) entryAcademicYearSelect.value = rec.entry_academic_year;
 
-    const dropTotal = records.reduce((acc, r) => acc + (r.dropout_total || 0), 0);
-    const dropFemale = records.reduce((acc, r) => acc + (r.dropout_female || 0), 0);
-    const dropPct = dropTotal > 0 ? ((dropFemale / dropTotal) * 100).toFixed(1) : 0;
+    updateMonthDynamicLabels();
 
-    const repTotal = records.reduce((acc, r) => acc + (r.repeater_total || 0), 0);
-    const repFemale = records.reduce((acc, r) => acc + (r.repeater_female || 0), 0);
-    const repPct = repTotal > 0 ? ((repFemale / repTotal) * 100).toFixed(1) : 0;
+    if (passedRegisteredTotal) passedRegisteredTotal.value = rec.passed_registered_total;
+    if (passedRegisteredFemale) passedRegisteredFemale.value = rec.passed_registered_female;
+    if (augustPrevYearTotal) augustPrevYearTotal.value = rec.august_prev_year_total || 0;
+    if (augustPrevYearFemale) augustPrevYearFemale.value = rec.august_prev_year_female || 0;
+    if (transferInTotal) transferInTotal.value = rec.transfer_in_total;
+    if (transferInFemale) transferInFemale.value = rec.transfer_in_female;
+    if (transferOutTotal) transferOutTotal.value = rec.transfer_out_total;
+    if (transferOutFemale) transferOutFemale.value = rec.transfer_out_female;
+    if (transferOutReason) transferOutReason.value = rec.transfer_out_reason || "";
+    if (dropoutTotal) dropoutTotal.value = rec.dropout_total;
+    if (dropoutFemale) dropoutFemale.value = rec.dropout_female;
+    if (dropoutReason) dropoutReason.value = rec.dropout_reason || "";
+    if (repeaterTotal) repeaterTotal.value = rec.repeater_total;
+    if (repeaterFemale) repeaterFemale.value = rec.repeater_female;
 
-    const actualTotal = records.reduce((acc, r) => acc + (r.actual_attending_total || 0), 0);
-    const actualFemale = records.reduce((acc, r) => acc + (r.actual_attending_female || 0), 0);
-    const actualPct = actualTotal > 0 ? ((actualFemale / actualTotal) * 100).toFixed(1) : 0;
+    calculateActualAttending();
 
-    if (statRegisteredTotal) statRegisteredTotal.textContent = regTotal.toLocaleString();
-    if (statRegisteredFemale) statRegisteredFemale.textContent = regFemale.toLocaleString();
-    if (statRegisteredPercent) statRegisteredPercent.textContent = regPct;
-
-    if (statTransferInTotal) statTransferInTotal.textContent = tInTotal.toLocaleString();
-    if (statTransferInFemale) statTransferInFemale.textContent = tInFemale.toLocaleString();
-    if (statTransferInPercent) statTransferInPercent.textContent = tInPct;
-
-    if (statTransferOutTotal) statTransferOutTotal.textContent = tOutTotal.toLocaleString();
-    if (statTransferOutFemale) statTransferOutFemale.textContent = tOutFemale.toLocaleString();
-    if (statTransferOutPercent) statTransferOutPercent.textContent = tOutPct;
-
-    if (statTotalDropout) statTotalDropout.textContent = dropTotal.toLocaleString();
-    if (statDropoutFemale) statDropoutFemale.textContent = dropFemale.toLocaleString();
-    if (statDropoutPercent) statDropoutPercent.textContent = dropPct;
-
-    if (statRepeaterTotal) statRepeaterTotal.textContent = repTotal.toLocaleString();
-    if (statRepeaterFemale) statRepeaterFemale.textContent = repFemale.toLocaleString();
-    if (statRepeaterPercent) statRepeaterPercent.textContent = repPct;
-
-    if (statTotalStudents) statTotalStudents.textContent = actualTotal.toLocaleString();
-    if (statFemaleStudents) statFemaleStudents.textContent = actualFemale.toLocaleString();
-    if (statFemalePercent) statFemalePercent.textContent = actualPct;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("ດຶງຂໍ້ມູນມາແກ້ໄຂແລ້ວ!", "info");
   }
 
-  // RENDER ADVANCED ANALYTICS CHARTS (MONTHLY TRENDS, DISTRICTS, GENDER & MOVEMENTS)
+  function deleteRecord(id) {
+    if (!confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລົບຂໍ້ມູນນີ້?")) return;
+    records = records.filter(r => r.id !== id);
+    saveRecordsToStorage();
+    renderApp();
+    showToast("ລົບຂໍ້ມູນສຳເລັດແລ້ວ!", "warning");
+  }
+
+  function resetSearchFilters() {
+    if (searchInput) searchInput.value = "";
+    if (filterDistrict) filterDistrict.value = "";
+    if (filterLevel) filterLevel.value = "";
+    if (filterGrade) filterGrade.value = "";
+    if (filterMonth) filterMonth.value = "";
+    if (filterAcademicYear) filterAcademicYear.value = "";
+    renderTable();
+  }
+
+  // Normalize school name: keep level prefix, only strip zero-width chars and standardize ປະຖົມ→ປ.ຖ
+  function normalizeSchoolName(name) {
+    if (!name) return '';
+    return name
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/^ປະຖົມ\s*/gi, 'ປ.ຖ ')
+      .trim()
+      .toLowerCase();
+  }
+
+  // School Submission Progress Tracking
+  function renderSubmissionStats() {
+    if (typeof DEFAULT_LAO_DISTRICTS === 'undefined') return;
+
+    const fDist = filterDistrict?.value || unsubmittedFilterDistrict?.value || "";
+    const fMth  = filterMonth?.value || "";
+    const fYr   = filterAcademicYear?.value || "";
+
+    // 1. Filter records by selected Month & Academic Year if specified
+    const activeRecords = records.filter(r => {
+      if (fMth && r.entry_month_only !== fMth) return false;
+      if (fYr  && r.entry_academic_year !== fYr) return false;
+      return true;
+    });
+
+    // 2. Build set of submitted school keys: "District_NormalizedName"
+    const submittedKeys = new Set();
+    activeRecords.forEach(r => {
+      if (r.district && r.school) {
+        const key = r.district.trim() + "_" + normalizeSchoolName(r.school);
+        submittedKeys.add(key);
+      }
+    });
+
+    // 3. Categorize all master schools into: fullySubmitted, partiallySubmitted, unsubmitted
+    let totalMasterSchools = 0;
+    let submittedCount = 0;
+    const districtStats = {};
+    const fullySubmittedList = [];
+    const partiallySubmittedList = [];
+    const unsubmittedList = [];
+
+    Object.entries(DEFAULT_LAO_DISTRICTS).forEach(([dist, schs]) => {
+      districtStats[dist] = { total: schs.length, submitted: 0 };
+      schs.forEach(sch => {
+        totalMasterSchools++;
+        const normSch = normalizeSchoolName(sch);
+        
+        // Find submitted records for this specific school
+        const schRecs = activeRecords.filter(r => r.district === dist && normalizeSchoolName(r.school) === normSch);
+        const submittedGrades = new Set(schRecs.map(r => r.grade_level || 'General'));
+        const gradeCount = submittedGrades.size;
+
+        // Determine max grades for school type
+        let maxGrades = 5;
+        if (sch.startsWith('ມ.ສ')) maxGrades = 7;
+        else if (sch.startsWith('ມ.ຕ')) maxGrades = 4;
+        else if (sch.startsWith('ປະຖົມ') || sch.startsWith('ປ.ຖ')) maxGrades = 5;
+
+        const schoolItem = {
+          district: dist,
+          name: sch,
+          code: lookupSchoolCode(sch, dist),
+          gradeCount: gradeCount,
+          maxGrades: maxGrades
+        };
+
+        const isFilteredOut = fDist && dist !== fDist;
+
+        if (gradeCount >= maxGrades || (gradeCount > 0 && schRecs.length >= maxGrades)) {
+          submittedCount++;
+          districtStats[dist].submitted++;
+          if (!isFilteredOut) fullySubmittedList.push(schoolItem);
+        } else if (gradeCount > 0) {
+          submittedCount++;
+          districtStats[dist].submitted++;
+          if (!isFilteredOut) partiallySubmittedList.push(schoolItem);
+        } else {
+          if (!isFilteredOut) unsubmittedList.push(schoolItem);
+        }
+      });
+    });
+
+    const unsubmittedCount = Math.max(0, totalMasterSchools - submittedCount);
+    const rate = totalMasterSchools > 0 ? ((submittedCount / totalMasterSchools) * 100).toFixed(2) : '0.00';
+
+    // Update KPI Card Elements
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setEl('statTotalSchoolsCount',   totalMasterSchools);
+    setEl('statSchoolsSubmitted',    submittedCount);
+    setEl('statSchoolsSubmittedPct', rate);
+    setEl('statSchoolsNotSubmitted', unsubmittedCount);
+
+    if (kpiTotalMasterSchools) kpiTotalMasterSchools.textContent = totalMasterSchools;
+    if (kpiSubmittedSchools)   kpiSubmittedSchools.textContent   = submittedCount;
+    if (kpiUnsubmittedSchools) kpiUnsubmittedSchools.textContent = unsubmittedCount;
+    if (kpiSubmissionRate)     kpiSubmissionRate.textContent     = `${rate}%`;
+    if (overallProgressBar)    overallProgressBar.style.width    = `${parseFloat(rate)}%`;
+
+    // 4. District Breakdown Progress Bars
+    const breakdownEl = document.getElementById('schoolSubmittedBreakdown');
+    if (breakdownEl) {
+      breakdownEl.innerHTML = Object.entries(districtStats)
+        .filter(([dist]) => !fDist || dist === fDist)
+        .map(([dist, s]) => {
+          const pct = s.total > 0 ? ((s.submitted / s.total) * 100).toFixed(2) : '0.00';
+          const pctNum = parseFloat(pct);
+          const color = pctNum >= 80 ? 'var(--accent-success)' : pctNum >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)';
+          return `<div style="margin-bottom: 12px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+              <span><strong>${dist}</strong></span>
+              <span style="color:${color}; font-weight:600;">${s.submitted}/${s.total} ໂຮງຮຽນ (${pct}%)</span>
+            </div>
+            <div style="background:var(--border-color); border-radius:4px; height:8px; overflow:hidden;">
+              <div style="width:${pctNum}%; height:100%; background:${color}; border-radius:4px; transition:width 0.4s ease;"></div>
+            </div>
+          </div>`;
+        }).join('');
+    }
+
+    // Helper to render school status card lists matching user requested screenshot UI
+    function renderSchoolStatusCardList(containerEl, badgeEl, list, emptyMsg, statusType) {
+      if (badgeEl) badgeEl.textContent = list.length + ' ໂຮງຮຽນ';
+      if (!containerEl) return;
+
+      if (list.length === 0) {
+        containerEl.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 25px 10px;">${emptyMsg}</p>`;
+        return;
+      }
+
+      const isFull = statusType === 'full';
+      const isPartial = statusType === 'partial';
+
+      const borderColor = isFull ? '#10b981' : isPartial ? '#f59e0b' : '#ef4444';
+      const badgeBg = isFull ? 'rgba(16, 185, 129, 0.12)' : isPartial ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+      const badgeColor = isFull ? '#10b981' : isPartial ? '#d97706' : '#dc2626';
+      const statusLabel = isFull ? 'ປ້ອນຄົບ' : isPartial ? 'ປ້ອນບາງສ່ວນ' : 'ຍັງບໍ່ປ້ອນ';
+
+      containerEl.innerHTML = list.map((item, idx) => `
+        <div style="
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-left: 3px solid ${borderColor};
+          border-radius: var(--radius-md);
+          padding: 10px 14px;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        ">
+          <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+            <div style="
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background: rgba(128,128,128,0.12);
+              color: var(--text-main);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+              font-size: 0.82rem;
+              flex-shrink: 0;
+            ">${idx + 1}</div>
+            <div style="overflow: hidden;">
+              <h4 style="font-size: 0.92rem; font-weight: 600; color: var(--text-main); margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${item.district} • ${item.code || '-'} • ${item.gradeCount}/${item.maxGrades} ຂັ້ນ
+              </p>
+            </div>
+          </div>
+          <span style="
+            background: ${badgeBg};
+            color: ${badgeColor};
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+          ">${statusLabel}</span>
+        </div>
+      `).join('');
+    }
+
+    // 5. Render 3 Panels matching user requested UI
+    renderSchoolStatusCardList(
+      document.getElementById('fullySubmittedList'),
+      document.getElementById('fullySubmittedCountBadge'),
+      fullySubmittedList,
+      'ບໍ່ມີໂຮງຮຽນທີ່ປ້ອນຄົບຕາມ Filter ນີ້',
+      'full'
+    );
+
+    renderSchoolStatusCardList(
+      document.getElementById('partiallySubmittedList'),
+      document.getElementById('partiallySubmittedCountBadge'),
+      partiallySubmittedList,
+      'ບໍ່ມີໂຮງຮຽນທີ່ປ້ອນບາງສ່ວນ',
+      'partial'
+    );
+
+    renderSchoolStatusCardList(
+      document.getElementById('schoolNotSubmittedBreakdown'),
+      document.getElementById('unsubmittedCountBadge'),
+      unsubmittedList,
+      'ບໍ່ມີໂຮງຮຽນທີ່ຍັງບໍ່ປ້ອນ',
+      'unsubmitted'
+    );
+
+    // Unsubmitted Table (index.html sidebar fallback)
+    if (unsubmittedTableBody) {
+      unsubmittedTableBody.innerHTML = '';
+      if (unsubmittedCountBadge) unsubmittedCountBadge.textContent = unsubmittedList.length;
+      if (unsubmittedList.length === 0) {
+        unsubmittedTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1.5rem; color: var(--accent-success);">✅ ປ້ອນຂໍ້ມູນຄົບທຸກໂຮງຮຽນແລ້ວ!</td></tr>';
+      } else {
+        unsubmittedList.slice(0, 100).forEach((item, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i+1}</td><td><strong>${item.district}</strong></td><td>${item.name}</td><td><code style="color:var(--accent-warning);">${item.code || '-'}</code></td>`;
+          unsubmittedTableBody.appendChild(tr);
+        });
+      }
+    }
+  }
+
+  // Render Transfer Out & Dropout Reasons Summary Breakdown
+  function renderReasonSummaries() {
+    const trOutContainer = document.getElementById('transferOutReasonsList');
+    const dropContainer  = document.getElementById('dropoutReasonsList');
+
+    if (!trOutContainer && !dropContainer) return;
+
+    // 1. Aggregate Transfer Out Reasons
+    const trOutMap = {};
+    let totalTrOutCount = 0;
+
+    records.forEach(r => {
+      const reason = (r.transfer_out_reason || "").trim() || "ບໍ່ໄດ້ລະບຸສາເຫດ";
+      const count  = parseInt(r.transfer_out_total) || 0;
+      if (count > 0 || (r.transfer_out_reason && r.transfer_out_reason.trim())) {
+        const cnt = count > 0 ? count : 1;
+        trOutMap[reason] = (trOutMap[reason] || 0) + cnt;
+        totalTrOutCount += cnt;
+      }
+    });
+
+    if (trOutContainer) {
+      const entries = Object.entries(trOutMap).sort((a, b) => b[1] - a[1]);
+      if (entries.length === 0) {
+        trOutContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:15px; font-size:0.85rem;">ບໍ່ມີຂໍ້ມູນການຍ້າຍອອກ</p>';
+      } else {
+        trOutContainer.innerHTML = entries.map(([reason, cnt]) => {
+          const pct = totalTrOutCount > 0 ? ((cnt / totalTrOutCount) * 100).toFixed(2) : '0.00';
+          return `
+            <div style="margin-bottom: 12px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                <span><i class="fa-solid fa-circle-dot" style="color:var(--accent-warning); font-size:0.75rem;"></i> <strong>${reason}</strong></span>
+                <span style="color:var(--accent-warning); font-weight:600;">${cnt} ຄົນ (${pct}%)</span>
+              </div>
+              <div style="background:var(--border-color); border-radius:4px; height:8px; overflow:hidden;">
+                <div style="width:${parseFloat(pct)}%; height:100%; background:var(--accent-warning); border-radius:4px; transition:width 0.4s ease;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 2. Aggregate Dropout Reasons
+    const dropMap = {};
+    let totalDropCount = 0;
+
+    records.forEach(r => {
+      const reason = (r.dropout_reason || "").trim() || "ບໍ່ໄດ້ລະບຸສາເຫດ";
+      const count  = parseInt(r.dropout_total) || 0;
+      if (count > 0 || (r.dropout_reason && r.dropout_reason.trim())) {
+        const cnt = count > 0 ? count : 1;
+        dropMap[reason] = (dropMap[reason] || 0) + cnt;
+        totalDropCount += cnt;
+      }
+    });
+
+    if (dropContainer) {
+      const entries = Object.entries(dropMap).sort((a, b) => b[1] - a[1]);
+      if (entries.length === 0) {
+        dropContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:15px; font-size:0.85rem;">ບໍ່ມີຂໍ້ມູນການປະລະ</p>';
+      } else {
+        dropContainer.innerHTML = entries.map(([reason, cnt]) => {
+          const pct = totalDropCount > 0 ? ((cnt / totalDropCount) * 100).toFixed(2) : '0.00';
+          return `
+            <div style="margin-bottom: 12px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                <span><i class="fa-solid fa-circle-dot" style="color:var(--accent-danger); font-size:0.75rem;"></i> <strong>${reason}</strong></span>
+                <span style="color:var(--accent-danger); font-weight:600;">${cnt} ຄົນ (${pct}%)</span>
+              </div>
+              <div style="background:var(--border-color); border-radius:4px; height:8px; overflow:hidden;">
+                <div style="width:${parseFloat(pct)}%; height:100%; background:var(--accent-danger); border-radius:4px; transition:width 0.4s ease;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  }
+
+  // Dynamic Chart Rendering for Dashboard (Chart.js)
+  let chartInstances = {};
+
   function renderCharts() {
-    const canvasTrend = document.getElementById('monthlyTrendChart');
-    const canvasDist = document.getElementById('districtChart');
-    const canvasGender = document.getElementById('genderChart');
-    const canvasMove = document.getElementById('movementChart');
+    if (typeof Chart === 'undefined') {
+      if (!window._chartLoading) {
+        window._chartLoading = true;
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
+        script.onload = () => { renderCharts(); };
+        document.head.appendChild(script);
+      } else {
+        setTimeout(renderCharts, 400);
+      }
+      return;
+    }
 
-    // 📈 CHART 1: MONTHLY TREND LINE CHART
-    if (canvasTrend) {
-      const monthDataMap = {};
-      LAO_MONTHS.forEach(m => {
-        monthDataMap[m.value] = { name: m.short, total: 0, female: 0 };
-      });
+    const monthMap = {
+      "01": 0, "1": 0, "ມັງກອນ": 0, "january": 0,
+      "02": 1, "2": 1, "ກຸມພາ": 1, "february": 1,
+      "03": 2, "3": 2, "ມີນາ": 2, "march": 2,
+      "04": 3, "4": 3, "ເມສາ": 3, "april": 3,
+      "05": 4, "5": 4, "ພຶດສະພາ": 4, "may": 4,
+      "06": 5, "6": 5, "ມິຖຸນາ": 5, "june": 5,
+      "07": 6, "7": 6, "ກໍລະກົດ": 6, "july": 6,
+      "08": 7, "8": 7, "ສິງຫາ": 7, "august": 7,
+      "09": 8, "9": 8, "ກັນຍາ": 8, "september": 8,
+      "10": 9, "ຕຸລາ": 9, "october": 9,
+      "11": 10, "ພະຈິກ": 10, "november": 10,
+      "12": 11, "ທັນວາ": 11, "december": 11
+    };
 
-      records.forEach(r => {
-        const mc = getRecordMonthCode(r.entry_month);
-        if (monthDataMap[mc]) {
-          monthDataMap[mc].total += (r.actual_attending_total || 0);
-          monthDataMap[mc].female += (r.actual_attending_female || 0);
-        }
-      });
+    const safeDestroy = (canvas, key) => {
+      try {
+        const existing = Chart.getChart(canvas);
+        if (existing) existing.destroy();
+      } catch (e) {}
+      if (chartInstances[key]) {
+        try { chartInstances[key].destroy(); } catch (e) {}
+        chartInstances[key] = null;
+      }
+    };
 
-      const trendLabels = LAO_MONTHS.map(m => m.short);
-      const trendTotals = LAO_MONTHS.map(m => monthDataMap[m.value].total);
-      const trendFemales = LAO_MONTHS.map(m => monthDataMap[m.value].female);
+    // 1. Monthly Trend Chart
+    try {
+      const monthlyCanvas = document.getElementById('monthlyTrendChart');
+      if (monthlyCanvas) {
+        safeDestroy(monthlyCanvas, 'monthly');
+        const months = ["ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ", "ມິຖຸນາ", "ກໍລະກົດ", "ສິງຫາ", "ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ"];
+        const monthlyTotals = new Array(12).fill(0);
+        const monthlyFemales = new Array(12).fill(0);
 
-      const ctxTrend = canvasTrend.getContext('2d');
-      if (monthlyTrendChart) monthlyTrendChart.destroy();
+        records.forEach(r => {
+          const rawM = (r.entry_month_only || "").trim().toLowerCase();
+          const mIdx = monthMap[rawM] !== undefined ? monthMap[rawM] : -1;
+          if (mIdx >= 0 && mIdx < 12) {
+            monthlyTotals[mIdx] += parseInt(r.actual_attending_total) || 0;
+            monthlyFemales[mIdx] += parseInt(r.actual_attending_female) || 0;
+          }
+        });
 
-      monthlyTrendChart = new Chart(ctxTrend, {
-        type: 'line',
-        data: {
-          labels: trendLabels,
-          datasets: [
-            {
-              label: 'ໜ້າຮຽນຕົວຈິງທັງໝົດ',
-              data: trendTotals,
-              borderColor: '#6366f1',
-              backgroundColor: 'rgba(99, 102, 241, 0.15)',
-              borderWidth: 3,
-              fill: true,
-              tension: 0.35,
-              pointBackgroundColor: '#6366f1',
-              pointRadius: 4
-            },
-            {
-              label: 'ໜ້າຮຽນຕົວຈິງ (ຍິງ)',
-              data: trendFemales,
-              borderColor: '#ec4899',
-              backgroundColor: 'rgba(236, 72, 153, 0.08)',
-              borderWidth: 2,
-              fill: true,
-              tension: 0.35,
-              pointBackgroundColor: '#ec4899',
-              pointRadius: 4
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'top', labels: { color: '#94a3b8' } }
+        chartInstances.monthly = new Chart(monthlyCanvas, {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: [
+              {
+                label: 'ໜ້າຮຽນຕົວຈິງທັງໝົດ',
+                data: monthlyTotals,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 3
+              },
+              {
+                label: 'ຍິງ',
+                data: monthlyFemales,
+                borderColor: '#ec4899',
+                backgroundColor: 'rgba(236, 72, 153, 0.15)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2
+              }
+            ]
           },
-          scales: {
-            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-            x: { grid: { display: false } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
           }
-        }
-      });
+        });
+      }
+    } catch (err) {
+      console.warn('Monthly chart error:', err);
     }
 
-    // 📊 CHART 2: DISTRICT COMPARISON BAR CHART
-    if (canvasDist) {
-      const districtMap = {};
-      Object.keys(DEFAULT_LAO_DISTRICTS).forEach(d => districtMap[d] = 0);
+    // 2. District Comparison Bar Chart
+    try {
+      const districtCanvas = document.getElementById('districtChart');
+      if (districtCanvas) {
+        safeDestroy(districtCanvas, 'district');
+        const districts = ["ເມືອງໄຊ", "ເມືອງຫຼາ", "ເມືອງນາໝໍ້", "ເມືອງງາ", "ເມືອງແບງ", "ເມືອງຮຸນ", "ເມືອງປາກແບງ"];
+        const distTotals = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.actual_attending_total) || 0), 0));
+        const distFemales = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.actual_attending_female) || 0), 0));
 
-      records.forEach(r => {
-        const dist = r.district || 'ອື່ນໆ';
-        districtMap[dist] = (districtMap[dist] || 0) + (r.actual_attending_total || 0);
-      });
-
-      const distLabels = Object.keys(districtMap);
-      const distValues = Object.values(districtMap);
-
-      const ctxDist = canvasDist.getContext('2d');
-      if (districtChart) districtChart.destroy();
-
-      districtChart = new Chart(ctxDist, {
-        type: 'bar',
-        data: {
-          labels: distLabels,
-          datasets: [{
-            label: 'ຈຳນວນນັກຮຽນ (ຄົນ)',
-            data: distValues,
-            backgroundColor: '#06b6d4',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-            x: { grid: { display: false } }
+        chartInstances.district = new Chart(districtCanvas, {
+          type: 'bar',
+          data: {
+            labels: districts,
+            datasets: [
+              { label: 'ທັງໝົດ', data: distTotals, backgroundColor: '#38bdf8', borderRadius: 4 },
+              { label: 'ຍິງ', data: distFemales, backgroundColor: '#f472b6', borderRadius: 4 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
           }
-        }
-      });
+        });
+      }
+    } catch (err) {
+      console.warn('District chart error:', err);
     }
 
-    // 🍩 CHART 3: GENDER RATIO DOUGHNUT CHART
-    if (canvasGender) {
-      let totalMale = 0;
-      let totalFemale = 0;
+    // 3. Gender Ratio Doughnut Chart
+    try {
+      const genderCanvas = document.getElementById('genderChart');
+      if (genderCanvas) {
+        safeDestroy(genderCanvas, 'gender');
+        let totFem = 0, totMale = 0;
+        records.forEach(r => {
+          const fem = parseInt(r.actual_attending_female) || 0;
+          const tot = parseInt(r.actual_attending_total) || 0;
+          totFem += fem;
+          totMale += Math.max(0, tot - fem);
+        });
 
-      records.forEach(r => {
-        totalFemale += (r.actual_attending_female || 0);
-        totalMale += ((r.actual_attending_total || 0) - (r.actual_attending_female || 0));
-      });
+        // Fallback placeholder if no records
+        const dataArr = (totFem === 0 && totMale === 0) ? [1, 1] : [totFem, totMale];
+        const colors  = (totFem === 0 && totMale === 0) ? ['rgba(236,72,153,0.3)', 'rgba(59,130,246,0.3)'] : ['#ec4899', '#3b82f6'];
 
-      const ctxGender = canvasGender.getContext('2d');
-      if (genderChart) genderChart.destroy();
-
-      genderChart = new Chart(ctxGender, {
-        type: 'doughnut',
-        data: {
-          labels: ['ນັກຮຽນຊາຍ', 'ນັກຮຽນຍິງ'],
-          datasets: [{
-            data: [totalMale < 0 ? 0 : totalMale, totalFemale],
-            backgroundColor: ['#6366f1', '#ec4899'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+        chartInstances.gender = new Chart(genderCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: ['ຍິງ', 'ຊາຍ'],
+            datasets: [{
+              data: dataArr,
+              backgroundColor: colors,
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
           }
-        }
-      });
+        });
+      }
+    } catch (err) {
+      console.warn('Gender chart error:', err);
     }
 
-    // 🔁 CHART 4: MOVEMENT COMPARISON BAR CHART
-    if (canvasMove) {
-      const reg = records.reduce((a, r) => a + (r.passed_registered_total || 0), 0);
-      const tIn = records.reduce((a, r) => a + (r.transfer_in_total || 0), 0);
-      const tOut = records.reduce((a, r) => a + (r.transfer_out_total || 0), 0);
-      const drop = records.reduce((a, r) => a + (r.dropout_total || 0), 0);
-      const rep = records.reduce((a, r) => a + (r.repeater_total || 0), 0);
+    // 4. Student Movement Comparison Bar Chart
+    try {
+      const movementCanvas = document.getElementById('movementChart');
+      if (movementCanvas) {
+        safeDestroy(movementCanvas, 'movement');
+        const districts = ["ເມືອງໄຊ", "ເມືອງຫຼາ", "ເມືອງນາໝໍ້", "ເມືອງງາ", "ເມືອງແບງ", "ເມືອງຮຸນ", "ເມືອງປາກແບງ"];
+        const attending = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.actual_attending_total) || 0), 0));
+        const trIn = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.transfer_in_total) || 0), 0));
+        const trOut = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.transfer_out_total) || 0), 0));
+        const drop = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.dropout_total) || 0), 0));
+        const rep = districts.map(d => records.filter(r => r.district === d).reduce((acc, r) => acc + (parseInt(r.repeater_total) || 0), 0));
 
-      const ctxMove = canvasMove.getContext('2d');
-      if (movementChart) movementChart.destroy();
-
-      movementChart = new Chart(ctxMove, {
-        type: 'bar',
-        data: {
-          labels: ['ລົງທະບຽນ', 'ຍ້າຍເຂົ້າ', 'ຍ້າຍອອກ', 'ປະລະ', 'ຄ້າງຫ້ອງ'],
-          datasets: [{
-            label: 'ຈຳນວນນັກຮຽນ (ຄົນ)',
-            data: [reg, tIn, tOut, drop, rep],
-            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7'],
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-            x: { grid: { display: false } }
+        chartInstances.movement = new Chart(movementCanvas, {
+          type: 'bar',
+          data: {
+            labels: districts,
+            datasets: [
+              { label: 'ມີໜ້າຮຽນຕົວຈິງ', data: attending, backgroundColor: '#3b82f6', borderRadius: 4 },
+              { label: 'ຍ້າຍເຂົ້າ', data: trIn, backgroundColor: '#10b981', borderRadius: 4 },
+              { label: 'ຍ້າຍອອກ', data: trOut, backgroundColor: '#f59e0b', borderRadius: 4 },
+              { label: 'ປະລະ', data: drop, backgroundColor: '#ef4444', borderRadius: 4 },
+              { label: 'ຄ້າງຫ້ອງ', data: rep, backgroundColor: '#8b5cf6', borderRadius: 4 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
           }
-        }
-      });
+        });
+      }
+    } catch (err) {
+      console.warn('Movement chart error:', err);
     }
   }
 
-  function showToast(message, type = 'info') {
-    const toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) return;
+  // ===================================================
+  // ADVANCED STATISTICS CHARTS (6 new charts)
+  // ===================================================
+  let advChartInstances = {};
 
+  function renderAdvancedCharts() {
+    if (typeof Chart === 'undefined') {
+      setTimeout(renderAdvancedCharts, 500);
+      return;
+    }
+
+    const DISTRICTS = ['ເມືອງໄຊ', 'ເມືອງຫຼາ', 'ເມືອງນາໝໍ້', 'ເມືອງງາ', 'ເມືອງແບງ', 'ເມືອງຮຸນ', 'ເມືອງປາກແບງ'];
+    const DIST_SHORT = ['ໄຊ', 'ຫຼາ', 'ນາໝໍ້', 'ງາ', 'ແບງ', 'ຮຸນ', 'ປາກແບງ'];
+    const MONTH_KEYS = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
+    const MONTH_MAP  = { 'ມັງກອນ':0,'ກຸມພາ':1,'ມີນາ':2,'ເມສາ':3,'ພຶດສະພາ':4,'ມິຖຸນາ':5,'ກໍລະກົດ':6,'ສິງຫາ':7,'ກັນຍາ':8,'ຕຸລາ':9,'ພະຈິກ':10,'ທັນວາ':11,'01':0,'02':1,'03':2,'04':3,'05':4,'06':5,'07':6,'08':7,'09':8,'10':9,'11':10,'12':11,'1':0,'2':1,'3':2,'4':3,'5':4,'6':5,'7':6,'8':7,'9':8 };
+
+    const adv_safeDestroy = (canvas, key) => {
+      try { const ex = Chart.getChart(canvas); if (ex) ex.destroy(); } catch(e) {}
+      if (advChartInstances[key]) { try { advChartInstances[key].destroy(); } catch(e) {} advChartInstances[key] = null; }
+    };
+
+    // Pre-aggregate data by district
+    const byDist = DISTRICTS.map(d => {
+      const recs = records.filter(r => r.district === d);
+      return {
+        total:    recs.reduce((s,r) => s + (parseInt(r.actual_attending_total) || 0), 0),
+        female:   recs.reduce((s,r) => s + (parseInt(r.actual_attending_female) || 0), 0),
+        dropout:  recs.reduce((s,r) => s + (parseInt(r.dropout_total) || 0), 0),
+        trIn:     recs.reduce((s,r) => s + (parseInt(r.transfer_in_total) || 0), 0),
+        trOut:    recs.reduce((s,r) => s + (parseInt(r.transfer_out_total) || 0), 0),
+        repeater: recs.reduce((s,r) => s + (parseInt(r.repeater_total) || 0), 0),
+        count:    recs.length
+      };
+    });
+
+    const GRID_COLOR  = 'rgba(255,255,255,0.05)';
+    const TICK_COLOR  = '#94a3b8';
+    const baseOpts = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: TICK_COLOR, font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: TICK_COLOR, font: { size: 10 } }, grid: { color: GRID_COLOR } },
+        y: { beginAtZero: true, ticks: { color: TICK_COLOR, font: { size: 10 } }, grid: { color: GRID_COLOR } }
+      }
+    };
+
+    // ── Chart A: Stacked Gender Bar by District ──────────────
+    try {
+      const cvs = document.getElementById('stackedGenderChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'stackedGender');
+        const males   = byDist.map(d => Math.max(0, d.total - d.female));
+        const females = byDist.map(d => d.female);
+        advChartInstances.stackedGender = new Chart(cvs, {
+          type: 'bar',
+          data: {
+            labels: DIST_SHORT,
+            datasets: [
+              { label: 'ຊາຍ',  data: males,   backgroundColor: '#3b82f6', borderRadius: 4, stack: 's1' },
+              { label: 'ຍິງ',  data: females, backgroundColor: '#ec4899', borderRadius: 4, stack: 's1' }
+            ]
+          },
+          options: { ...baseOpts, plugins: { ...baseOpts.plugins }, scales: { x: { ...baseOpts.scales.x, stacked: true, grid: { display: false } }, y: { ...baseOpts.scales.y, stacked: true } } }
+        });
+      }
+    } catch(e) { console.warn('stackedGenderChart error:', e); }
+
+    // ── Chart B: Dropout Rate % Horizontal Bar ───────────────
+    try {
+      const cvs = document.getElementById('dropoutRateChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'dropoutRate');
+        const rates = byDist.map(d => d.total > 0 ? +((d.dropout / d.total) * 100).toFixed(2) : 0);
+        const colors = rates.map(r => r > 5 ? '#ef4444' : r > 2 ? '#f59e0b' : '#10b981');
+        advChartInstances.dropoutRate = new Chart(cvs, {
+          type: 'bar',
+          data: {
+            labels: DIST_SHORT,
+            datasets: [{ label: 'ອັດຕາປະລະ (%)', data: rates, backgroundColor: colors, borderRadius: 4 }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}%` } } },
+            scales: {
+              x: { beginAtZero: true, max: 15, ticks: { color: TICK_COLOR, callback: v => v+'%' }, grid: { color: GRID_COLOR } },
+              y: { ticks: { color: TICK_COLOR, font: { size: 11 } }, grid: { display: false } }
+            }
+          }
+        });
+      }
+    } catch(e) { console.warn('dropoutRateChart error:', e); }
+
+    // ── Chart C: Radar KPI by District ───────────────────────
+    try {
+      const cvs = document.getElementById('radarKpiChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'radarKpi');
+        const maxT  = Math.max(...byDist.map(d => d.total),  1);
+        const maxDr = Math.max(...byDist.map(d => d.dropout), 1);
+        const maxIn = Math.max(...byDist.map(d => d.trIn),    1);
+        const maxRp = Math.max(...byDist.map(d => d.repeater),1);
+        const norm  = (v, mx) => mx > 0 ? +((v / mx) * 100).toFixed(2) : 0;
+        const colors7 = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4'];
+        advChartInstances.radarKpi = new Chart(cvs, {
+          type: 'radar',
+          data: {
+            labels: ['ໜ້າຮຽນ', 'ຍ້າຍເຂົ້າ', 'ປະລະ', 'ຄ້າງຫ້ອງ', 'ຍິງ%'],
+            datasets: DISTRICTS.map((d, i) => ({
+              label: DIST_SHORT[i],
+              data: [
+                norm(byDist[i].total, maxT),
+                norm(byDist[i].trIn, maxIn),
+                norm(byDist[i].dropout, maxDr),
+                norm(byDist[i].repeater, maxRp),
+                byDist[i].total > 0 ? +((byDist[i].female / byDist[i].total) * 100).toFixed(2) : 0
+              ],
+              borderColor: colors7[i],
+              backgroundColor: colors7[i].replace(')', ',0.12)').replace('rgb', 'rgba').replace('#', '').length > 10
+                ? colors7[i] + '20'
+                : colors7[i] + '20',
+              borderWidth: 2,
+              pointRadius: 3
+            }))
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { color: TICK_COLOR, boxWidth: 12, font: { size: 10 } } } },
+            scales: { r: { ticks: { display: false }, grid: { color: GRID_COLOR }, pointLabels: { color: TICK_COLOR, font: { size: 10 } }, suggestedMin: 0, suggestedMax: 100 } }
+          }
+        });
+      }
+    } catch(e) { console.warn('radarKpiChart error:', e); }
+
+    // ── Chart D: School Level Pie (ປ.ຖ / ມ.ຕ / ມ.ສ) ─────────
+    try {
+      const cvs = document.getElementById('schoolLevelPieChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'schoolLevelPie');
+        // Count schools by level from DEFAULT_LAO_DISTRICTS
+        let ptTotal = 0, mtTotal = 0, msTotal = 0;
+        if (typeof DEFAULT_LAO_DISTRICTS !== 'undefined') {
+          Object.values(DEFAULT_LAO_DISTRICTS).forEach(dObj => {
+            if (dObj['ມ.ສ']) msTotal += dObj['ມ.ສ'].length;
+            if (dObj['ມ.ຕ']) mtTotal += dObj['ມ.ຕ'].length;
+            if (dObj['ປ.ຖ']) ptTotal += dObj['ປ.ຖ'].length;
+          });
+        }
+        // Fallback counts if no data
+        if (ptTotal + mtTotal + msTotal === 0) { ptTotal = 470; mtTotal = 54; msTotal = 44; }
+        advChartInstances.schoolLevelPie = new Chart(cvs, {
+          type: 'doughnut',
+          data: {
+            labels: ['ປ.ຖ (ປະຖົມ)', 'ມ.ຕ (ມ.ຕ)', 'ມ.ສ (ມ.ສ)'],
+            datasets: [{ data: [ptTotal, mtTotal, msTotal], backgroundColor: ['#06b6d4','#8b5cf6','#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { color: TICK_COLOR, font: { size: 11 } } },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} ໂຮງຮຽນ` } }
+            },
+            cutout: '60%'
+          }
+        });
+      }
+    } catch(e) { console.warn('schoolLevelPieChart error:', e); }
+
+    // ── Chart E: Net Flow by Month Line ──────────────────────
+    try {
+      const cvs = document.getElementById('netFlowChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'netFlow');
+        const trIn   = new Array(12).fill(0);
+        const trOut  = new Array(12).fill(0);
+        const drop   = new Array(12).fill(0);
+        const netFlow= new Array(12).fill(0);
+        records.forEach(r => {
+          const m = MONTH_MAP[(r.entry_month_only || '').trim().toLowerCase()];
+          if (m !== undefined) {
+            trIn[m]  += parseInt(r.transfer_in_total)  || 0;
+            trOut[m] += parseInt(r.transfer_out_total) || 0;
+            drop[m]  += parseInt(r.dropout_total)      || 0;
+            netFlow[m] = trIn[m] - trOut[m] - drop[m];
+          }
+        });
+        advChartInstances.netFlow = new Chart(cvs, {
+          type: 'line',
+          data: {
+            labels: MONTH_KEYS,
+            datasets: [
+              { label: 'ຍ້າຍເຂົ້າ', data: trIn,    borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: false, tension: 0.3, borderWidth: 2 },
+              { label: 'ຍ້າຍອອກ',   data: trOut,   borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)',  fill: false, tension: 0.3, borderWidth: 2 },
+              { label: 'ປະລະ',       data: drop,    borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',   fill: false, tension: 0.3, borderWidth: 2 },
+              { label: 'Net Flow',   data: netFlow, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.15)', fill: true,  tension: 0.3, borderWidth: 3, borderDash: [] }
+            ]
+          },
+          options: { ...baseOpts }
+        });
+      }
+    } catch(e) { console.warn('netFlowChart error:', e); }
+
+    // ── Chart F: Submission Progress % by District ───────────
+    try {
+      const cvs = document.getElementById('submissionProgressChart');
+      if (cvs) {
+        adv_safeDestroy(cvs, 'submissionProgress');
+        let totalByDist = {}, submittedByDist = {};
+        DISTRICTS.forEach(d => { totalByDist[d] = 0; submittedByDist[d] = 0; });
+        if (typeof DEFAULT_LAO_DISTRICTS !== 'undefined') {
+          DISTRICTS.forEach(d => {
+            const dObj = DEFAULT_LAO_DISTRICTS[d] || {};
+            totalByDist[d] = (dObj['ມ.ສ']||[]).length + (dObj['ມ.ຕ']||[]).length + (dObj['ປ.ຖ']||[]).length;
+          });
+        }
+        records.forEach(r => {
+          if (submittedByDist[r.district] !== undefined) submittedByDist[r.district]++;
+        });
+        const progressPct = DISTRICTS.map(d => totalByDist[d] > 0 ? +Math.min(100, ((submittedByDist[d] / totalByDist[d]) * 100)).toFixed(2) : 0);
+        const pgColors = progressPct.map(p => p >= 80 ? '#10b981' : p >= 40 ? '#f59e0b' : '#ef4444');
+        advChartInstances.submissionProgress = new Chart(cvs, {
+          type: 'bar',
+          data: {
+            labels: DIST_SHORT,
+            datasets: [{ label: 'ຄວາມຄືບໜ້າ (%)', data: progressPct, backgroundColor: pgColors, borderRadius: 6 }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}% (${submittedByDist[DISTRICTS[ctx.dataIndex]]} / ${totalByDist[DISTRICTS[ctx.dataIndex]]} ໂຮງ)` } }
+            },
+            scales: {
+              x: { ticks: { color: TICK_COLOR, font: { size: 11 } }, grid: { display: false } },
+              y: { beginAtZero: true, max: 100, ticks: { color: TICK_COLOR, callback: v => v+'%' }, grid: { color: GRID_COLOR } }
+            }
+          }
+        });
+      }
+    } catch(e) { console.warn('submissionProgressChart error:', e); }
+  }
+
+  // Google Apps Script Live Sync
+  async function syncSchoolsFromGoogleSheet() {
+    if (typeof GOOGLE_APPS_SCRIPT_URL === 'undefined' || !GOOGLE_APPS_SCRIPT_URL) return;
+    try {
+      const res = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getSchools`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.status === 'success' && Array.isArray(data.data)) {
+        const freshDistricts = {};
+        const freshCodes = {};
+        data.data.forEach(s => {
+          if (!s.name || !s.district) return;
+          const dist = s.district.trim();
+          const name = s.name.trim();
+          if (!freshDistricts[dist]) freshDistricts[dist] = [];
+          if (!freshDistricts[dist].includes(name)) freshDistricts[dist].push(name);
+          if (s.code) freshCodes[name] = s.code.trim();
+        });
+        if (Object.keys(freshDistricts).length > 0) {
+          Object.assign(DEFAULT_LAO_DISTRICTS, freshDistricts);
+          Object.assign(DEFAULT_SCHOOL_CODES, freshCodes);
+          // Only repopulate dropdowns if user is not actively selecting form fields
+          if (!studentDataForm || (!districtSelect?.value && !schoolSelect?.value)) {
+            populateAllDropdowns();
+          }
+          renderSubmissionStats();
+        }
+      }
+    } catch (err) {
+      console.warn('Sync schools fallback:', err);
+    }
+  }
+
+  async function postRecordToGoogleSheet(record) {
+    if (typeof GOOGLE_APPS_SCRIPT_URL === 'undefined' || !GOOGLE_APPS_SCRIPT_URL) return;
+    try {
+      await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      console.log('⚡ Record posted to Google Sheets');
+    } catch (e) {
+      console.warn('Google Sheets post error:', e);
+    }
+  }
+
+  // Excel Export
+  function exportToExcel() {
+    if (records.length === 0) {
+      showToast("ບໍ່ມີຂໍ້ມູນສຳລັບສົ່ງອອກ!", "warning");
+      return;
+    }
+
+    let csvContent = "\uFEFF" + "ID,ເດືອນ,ສົກຮຽນ,ເມືອງ,ໂຮງຮຽນ,ລະຫັດ,ຊັ້ນຮຽນ,ຂັ້ນຮຽນ,ຜູ້ປ້ອນ,ລົງທະບຽນທັງໝົດ,ລົງທະບຽນຍິງ,ຍ້າຍເຂົ້າທັງໝົດ,ຍ້າຍເຂົ້າຍິງ,ຍ້າຍອອກທັງໝົດ,ຍ້າຍອອກຍິງ,ສາເຫດຍ້າຍອອກ,ປະລະທັງໝົດ,ປະລະຍິງ,ສາເຫດປະລະ,ຄືນຮຽນທັງໝົດ,ຄືນຮຽນຍິງ,ມາຮຽນຕົວຈິງທັງໝົດ,ມາຮຽນຕົວຈິງຍິງ,ວັນທີບັນທຶກ\n";
+
+    records.forEach(r => {
+      const row = [
+        `"${r.id}"`, `"${r.entry_month_only}"`, `"${r.entry_academic_year}"`,
+        `"${r.district}"`, `"${r.school}"`, `"${r.school_code}"`,
+        `"${r.education_level}"`, `"${r.grade_level}"`, `"${r.collector_name}"`,
+        r.passed_registered_total, r.passed_registered_female,
+        r.transfer_in_total, r.transfer_in_female,
+        r.transfer_out_total, r.transfer_out_female, `"${r.transfer_out_reason || ''}"`,
+        r.dropout_total, r.dropout_female, `"${r.dropout_reason || ''}"`,
+        r.repeater_total, r.repeater_female,
+        r.actual_attending_total, r.actual_attending_female,
+        `"${r.created_at}"`
+      ];
+      csvContent += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `lao_student_data_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    showToast("ສົ່ງອອກ CSV ສຳເລັດແລ້ວ!", "success");
+  }
+
+  // Toast Notification Helper
+  function showToast(message, type = "info") {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
-    let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-circle-check';
-    if (type === 'error') iconClass = 'fa-triangle-exclamation';
-
-    toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`;
-    toastContainer.appendChild(toast);
-
+    toast.style.cssText = `
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+      color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: all 0.3s ease;
+    `;
+    toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
+    document.body.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(100%)';
       setTimeout(() => toast.remove(), 300);
     }, 3500);
   }
 
-  function renderApp() {
-    renderTable();
-    renderStats();
-    renderCharts();
+  // ===================================================
+  // REAL-TIME AUTO-SYNC SYSTEM (Live Dashboard Updates & Google Sheet Sync)
+  // ===================================================
+  async function syncRecordsFromGoogleSheet(silent = true) {
+    const gasUrl = (typeof GOOGLE_APPS_SCRIPT_URL !== 'undefined' && GOOGLE_APPS_SCRIPT_URL)
+      ? GOOGLE_APPS_SCRIPT_URL
+      : localStorage.getItem('gas_web_app_url');
+
+    if (!gasUrl) return;
+
+    const badge = document.getElementById('liveSyncStatusBadge');
+    if (badge && !silent) {
+      badge.innerHTML = `<i class="fa-solid fa-spin fa-spinner"></i> ກຳລັງ Sync ຈາກ Google Sheet...`;
+      badge.style.color = '#f59e0b';
+    }
+
+    try {
+      const res = await fetch(`${gasUrl}?action=getRecords`);
+      if (!res.ok) throw new Error("HTTP error " + res.status);
+      const json = await res.json();
+      if (json && json.status === 'success' && Array.isArray(json.data)) {
+        if (json.data.length > 0) {
+          records = json.data;
+          saveRecordsToStorage();
+          renderApp();
+          if (!silent) showToast(`Sync ຂໍ້ມູນຈາກ Google Sheet ສຳເລັດ! (${json.data.length} ລາຍການ)`, "success");
+        } else if (!silent) {
+          showToast("DataRecords ໃນ Google Sheet ຍັງຫວ່າງເປົ່າ!", "warning");
+        }
+      }
+    } catch (err) {
+      console.warn('Sync Google Sheet records error:', err);
+      if (!silent) showToast("ບໍ່ສາມາດເຊື່ອມຕໍ່ Google Sheet ໄດ້: " + err.message, "error");
+    } finally {
+      if (badge) {
+        badge.innerHTML = `<i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync)`;
+        badge.style.color = 'var(--accent-success)';
+      }
+    }
+  }
+
+  function triggerLiveAutoSync() {
+    // If user is on form page and actively filling out form inputs, DO NOT auto refresh
+    if (studentDataForm) {
+      const active = document.activeElement;
+      if (active && (studentDataForm.contains(active) || active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+        return;
+      }
+      // If user typed numbers into form, do not interrupt
+      if ((passedRegisteredTotal && passedRegisteredTotal.value) || (transferInTotal && transferInTotal.value)) {
+        return;
+      }
+    }
+
+    loadRecordsFromStorage();
+    renderApp();
+
+    const isDashboardPage = !!document.getElementById('liveSyncStatusBadge') || !!document.getElementById('monthlyTrendChart');
+    if (isDashboardPage) {
+      syncSchoolsFromGoogleSheet();
+      syncRecordsFromGoogleSheet(true);
+    }
+
+    const badge = document.getElementById('liveSyncStatusBadge');
+    if (badge) {
+      badge.style.transform = 'scale(1.08)';
+      setTimeout(() => badge.style.transform = 'scale(1)', 300);
+    }
+  }
+
+  // Sync Google Sheet Button Listener
+  const syncGasBtn = document.getElementById('syncGasBtn');
+  if (syncGasBtn) {
+    syncGasBtn.addEventListener('click', () => {
+      let url = (typeof GOOGLE_APPS_SCRIPT_URL !== 'undefined' && GOOGLE_APPS_SCRIPT_URL)
+        ? GOOGLE_APPS_SCRIPT_URL
+        : localStorage.getItem('gas_web_app_url');
+
+      if (!url) {
+        url = prompt("ກະລຸນາໃສ່ Web App URL ຂອງ Google Apps Script (https://script.google.com/macros/s/.../exec):");
+        if (url && url.trim()) {
+          localStorage.setItem('gas_web_app_url', url.trim());
+        } else {
+          return;
+        }
+      }
+      syncRecordsFromGoogleSheet(false);
+    });
+  }
+
+
+
+  const isDashboard = !!document.getElementById('liveSyncStatusBadge') || !!document.getElementById('monthlyTrendChart');
+
+  // Initial load sync from Google Sheet (Only on Dashboard page)
+  if (isDashboard) {
+    syncRecordsFromGoogleSheet(true);
+  }
+
+  // 1. Cross-Tab Live Storage Event Listener (Only trigger if not typing)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'lao_school_records' || e.key === 'lao_school_records_updated_at') {
+      triggerLiveAutoSync();
+    }
+  });
+
+  // 2. Window Focus & Tab Visibility Change Auto-Sync (Only on Dashboard)
+  if (isDashboard) {
+    window.addEventListener('focus', triggerLiveAutoSync);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) triggerLiveAutoSync();
+    });
+
+    // 3. Periodic Background Auto-Sync (Every 10 seconds - Dashboard only)
+    setInterval(triggerLiveAutoSync, 10000);
   }
 });

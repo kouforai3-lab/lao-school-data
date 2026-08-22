@@ -35,7 +35,12 @@
         </div>
         <div>
           <h1 class="brand-title">Dashboard ສະຫຼຸບສະຖິຕິຂໍ້ມູນນັກຮຽນ</h1>
-          <p class="brand-subtitle">ແຂວງອຸດົມໄຊ (Analytics, Trends & Comprehensive Reports)</p>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:3px;">
+            <p class="brand-subtitle" style="margin:0;">ແຂວງອຸດົມໄຊ (Analytics, Trends & Comprehensive Reports)</p>
+            <span id="liveSyncStatusBadge" class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; padding: 2px 10px; transition: transform 0.3s ease;">
+              <i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync)
+            </span>
+          </div>
         </div>
       </div>
       
@@ -46,8 +51,8 @@
         <a href="index.html" class="btn btn-primary">
           <i class="fa-solid fa-pen-to-square"></i> ໄປໜ້າຟອມປ້ອນຂໍ້ມູນ
         </a>
-        <button id="importExcelModalBtn" class="btn btn-success">
-          <i class="fa-solid fa-file-excel"></i> ນຳເຂົ້າ Excel
+        <button id="syncGasBtn" class="btn btn-primary" style="background: linear-gradient(135deg, #6366f1, #4338ca);" title="ດຶງຂໍ້ມູນລ່າສຸດຈາກ Google Sheet (DataRecords)">
+          <i class="fa-solid fa-cloud-arrow-down"></i> Sync ຈາກ Google Sheet
         </button>
         <button id="exportExcelBtn" class="btn btn-success" style="background: linear-gradient(135deg, #10b981, #047857);">
           <i class="fa-solid fa-file-excel"></i> ສົ່ງອອກ Excel (.xlsx)
@@ -135,6 +140,123 @@
 
     </section>
 
+    <!-- SCHOOL SUBMISSION TRACKING SECTION -->
+    <section style="margin-bottom: 24px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+
+        <!-- Total Schools -->
+        <div class="stat-card" style="border-left: 4px solid var(--accent-info);">
+          <div class="stat-icon-bg" style="background: rgba(99,179,237,0.15); color: var(--accent-info);">
+            <i class="fa-solid fa-school"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value" id="statTotalSchoolsCount">567</span>
+            <span class="stat-label">ໂຮງຮຽນທັງໝົດ</span>
+            <span class="stat-subtext" style="color: var(--accent-info);">ແຂວງອຸດົມໄຊ (7 ເມືອງ)</span>
+          </div>
+        </div>
+
+        <!-- Schools Submitted -->
+        <div class="stat-card" style="border-left: 4px solid var(--accent-success);">
+          <div class="stat-icon-bg" style="background: rgba(16,185,129,0.15); color: var(--accent-success);">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value" id="statSchoolsSubmitted">0</span>
+            <span class="stat-label">ໂຮງຮຽນປ້ອນຂໍ້ມູນແລ້ວ</span>
+            <span class="stat-subtext" style="color: var(--accent-success);">
+              <span id="statSchoolsSubmittedPct">0</span>% ຂອງທັງໝົດ
+            </span>
+          </div>
+        </div>
+
+        <!-- Schools Not Submitted -->
+        <div class="stat-card" style="border-left: 4px solid var(--accent-danger);">
+          <div class="stat-icon-bg" style="background: rgba(239,68,68,0.15); color: var(--accent-danger);">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-value" id="statSchoolsNotSubmitted">95</span>
+            <span class="stat-label">ໂຮງຮຽນຍັງບໍ່ທັນປ້ອນ</span>
+            <span class="stat-subtext" style="color: var(--accent-danger);">ຕ້ອງຕິດຕາມ</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SCHOOL SUBMISSION PANELS (Matching User Screenshot Layout) -->
+      <!-- Top Row: ປ້ອນຄົບ & ປ້ອນບາງສ່ວນ -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        
+        <!-- Fully Submitted Card -->
+        <div class="card-section" style="padding: 18px; min-height: 180px; max-height: 320px; overflow-y: auto;">
+          <div class="section-header" style="margin-bottom: 14px;">
+            <h3 class="section-title" style="font-size: 1rem; color: var(--accent-success); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <span><i class="fa-solid fa-circle-check"></i> ປ້ອນຄົບ</span>
+              <span class="badge-tag" id="fullySubmittedCountBadge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-success);">0</span>
+            </h3>
+          </div>
+          <div id="fullySubmittedList">
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 25px 10px;">
+              ບໍ່ມີໂຮງຮຽນທີ່ປ້ອນຄົບຕາມ Filter ນີ້
+            </p>
+          </div>
+        </div>
+
+        <!-- Partially Submitted Card -->
+        <div class="card-section" style="padding: 18px; min-height: 180px; max-height: 320px; overflow-y: auto;">
+          <div class="section-header" style="margin-bottom: 14px;">
+            <h3 class="section-title" style="font-size: 1rem; color: var(--accent-warning); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <span><i class="fa-solid fa-circle-half-stroke"></i> ປ້ອນບາງສ່ວນ</span>
+              <span class="badge-tag" id="partiallySubmittedCountBadge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-warning);">0</span>
+            </h3>
+          </div>
+          <div id="partiallySubmittedList">
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 25px 10px;">
+              ບໍ່ມີໂຮງຮຽນທີ່ປ້ອນບາງສ່ວນ
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Row: ຍັງບໍ່ປ້ອນ & ຄວາມຄືບໜ້າ ຕາມເມືອງ -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+        <!-- Not Submitted Card -->
+        <div class="card-section" style="padding: 18px; max-height: 420px; overflow-y: auto;">
+          <div class="section-header" style="margin-bottom: 14px;">
+            <h3 class="section-title" style="font-size: 1rem; color: var(--accent-danger); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <span><i class="fa-solid fa-circle-xmark"></i> ຍັງບໍ່ປ້ອນ</span>
+              <span class="badge-tag" id="unsubmittedCountBadge" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-danger);">0</span>
+            </h3>
+          </div>
+          <div id="schoolNotSubmittedBreakdown">
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 25px 10px;">
+              ກຳລັງໂຫຼດ...
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress by District Card -->
+        <div class="card-section" style="padding: 18px; max-height: 420px; overflow-y: auto;">
+          <div class="section-header" style="margin-bottom: 14px;">
+            <h3 class="section-title" style="font-size: 1rem;">
+              <i class="fa-solid fa-chart-simple" style="color: var(--accent-info);"></i>
+              ຄວາມຄືບໜ້າ ຕາມເມືອງ
+            </h3>
+          </div>
+          <div id="schoolSubmittedBreakdown">
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 10px;">
+              ບໍ່ມີຂໍ້ມູນ — ໃຫ້ບັນທຶກຂໍ້ມູນໂຮງຮຽນກ່ອນ
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
     <!-- Main Content Layout -->
     <main class="main-layout" style="grid-template-columns: 1fr;">
       
@@ -179,12 +301,127 @@
           <div class="chart-card" style="grid-column: span 2;">
             <h3 class="chart-title">
               <i class="fa-solid fa-right-left" style="color: var(--accent-warning);"></i> 
-              ກຣາຟປຽບທຽບ ການເຄື່ອນເໜັງຂອງນັກຮຽນ (ຍ້າຍເຂົ້າ, ຍ້າຍອອກ, ປະລະ, ຄ້າງຫ້ອງ)
+              ກຣາຟປຽບທຽບ ການເຄື່ອນເໜັງຂອງນັກຮຽນ (ມີໜ້າຮຽນຕົວຈິງ, ຍ້າຍເຂົ້າ, ຍ້າຍອອກ, ປະລະ, ຄ້າງຫ້ອງ)
             </h3>
             <canvas id="movementChart" height="110"></canvas>
           </div>
 
         </div>
+      </section>
+
+      <!-- REASONS SUMMARY SECTION (Transfer Out & Dropout Reasons Breakdown) -->
+      <section class="card-section" style="margin-bottom: 24px;">
+        <div class="section-header" style="margin-bottom: 16px;">
+          <h2 class="section-title">
+            <i class="fa-solid fa-list-check" style="color: var(--accent-warning);"></i>
+            ສັງລວມ ສາເຫດການຍ້າຍອອກ ແລະ ສາເຫດການປະລະການຮຽນ (Reasons Analysis)
+          </h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          
+          <!-- Transfer Out Reasons Card -->
+          <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); padding: 16px;">
+            <h3 style="font-size: 0.98rem; font-weight: 600; color: var(--accent-warning); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              ສັງລວມ ສາເຫດການຍ້າຍອອກ (Transfer Out Reasons)
+            </h3>
+            <div id="transferOutReasonsList">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 15px;">ກຳລັງໂຫຼດ...</p>
+            </div>
+          </div>
+
+          <!-- Dropout Reasons Card -->
+          <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 16px;">
+            <h3 style="font-size: 0.98rem; font-weight: 600; color: var(--accent-danger); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-user-xmark"></i>
+              ສັງລວມ ສາເຫດການປະລະການຮຽນ (Dropout Reasons)
+            </h3>
+            <div id="dropoutReasonsList">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 15px;">ກຳລັງໂຫຼດ...</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =====================================================
+           ADVANCED STATISTICS & ANALYTICS SECTION
+           ===================================================== -->
+      <section class="card-section" style="margin-bottom: 24px;">
+        <div class="section-header" style="margin-bottom: 16px;">
+          <h2 class="section-title">
+            <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--accent-primary);"></i>
+            ການວິເຄາະສະຖິຕິຢ່າງລະອຽດ (Advanced Statistical Analysis)
+          </h2>
+          <span class="badge-tag" style="background: rgba(99,102,241,0.15); color: var(--accent-primary);">
+            <i class="fa-solid fa-robot" style="font-size:0.75rem;"></i> Auto Computed
+          </span>
+        </div>
+
+        <!-- Row 1: Gender by District + Dropout Rate -->
+        <div class="charts-grid" style="margin-bottom: 20px;">
+          <!-- Chart A: Stacked Gender Bar by District -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-venus-mars" style="color: var(--accent-pink);"></i>
+              ສັດສ່ວນ ຊາຍ-ຍິງ ແຕ່ລະເມືອງ (Stacked Gender)
+            </h3>
+            <canvas id="stackedGenderChart"></canvas>
+          </div>
+
+          <!-- Chart B: Dropout Rate % Horizontal Bar -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="color: var(--accent-danger);"></i>
+              ອັດຕາການປະລະ (%) ແຕ່ລະເມືອງ (Dropout Rate)
+            </h3>
+            <canvas id="dropoutRateChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Row 2: Radar + School Level Pie -->
+        <div class="charts-grid" style="margin-bottom: 20px;">
+          <!-- Chart C: Radar - Multi KPI by District -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-chart-area" style="color: var(--accent-purple);"></i>
+              ເຣດາ ປຽບທຽບ KPI ທຸກ 7 ເມືອງ (Radar KPI)
+            </h3>
+            <canvas id="radarKpiChart"></canvas>
+          </div>
+
+          <!-- Chart D: Pie - School Level Distribution -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-school" style="color: var(--accent-info);"></i>
+              ສັດສ່ວນໂຮງຮຽນ ແຕ່ລະລະດັບ ປ.ຖ / ມ.ຕ / ມ.ສ
+            </h3>
+            <canvas id="schoolLevelPieChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Row 3: Net Flow Line + Submission Progress Bar -->
+        <div class="charts-grid">
+          <!-- Chart E: Net Flow Monthly Line -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-wave-square" style="color: var(--accent-success);"></i>
+              Net Flow ນັກຮຽນ ແຕ່ລະເດືອນ (ເຂົ້າ - ອອກ - ປະລະ)
+            </h3>
+            <canvas id="netFlowChart"></canvas>
+          </div>
+
+          <!-- Chart F: Submission Progress by District -->
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <i class="fa-solid fa-gauge-high" style="color: var(--accent-warning);"></i>
+              ຄວາມຄືບໜ້າ ການປ້ອນຂໍ້ມູນ ແຕ່ລະເມືອງ (%)
+            </h3>
+            <canvas id="submissionProgressChart"></canvas>
+          </div>
+        </div>
+
       </section>
 
       <!-- DATA TABLE & ADVANCED SEARCH SECTION -->
@@ -216,7 +453,7 @@
             <select id="filterLevel" class="select-control filter-item">
               <option value="">ທຸກໆຊັ້ນຮຽນ</option>
               <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
-              <option value="ມັດທະຍົມຕອນຕົ້ນ">ມັດທະຍົມຕອນຕົ້ນ</option>
+              <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
               <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
             </select>
 
@@ -259,17 +496,18 @@
           <table class="data-table" id="recordsTable">
             <thead>
               <tr>
-                <th>ເດືອນ / ສົກຮຽນ</th>
-                <th>ເມືອງ</th>
-                <th>ໂຮງຮຽນ</th>
-                <th>ຊັ້ນ/ຂັ້ນ</th>
-                <th>ລົງທະບຽນ</th>
+                <th>#</th>
+                <th>ເມືອງ / ເດືອນ / ສົກ</th>
+                <th>ໂຮງຮຽນ / ລະຫັດ</th>
+                <th>ຂັ້ນຮຽນ</th>
+                <th>ຜູ້ປ້ອນ</th>
+                <th>ທ້າຍ/ລົງທະບຽນ</th>
                 <th>ຍ້າຍເຂົ້າ</th>
                 <th>ຍ້າຍອອກ</th>
                 <th>ປະລະ</th>
-                <th>ໜ້າຕົວຈິງ (ຍິງ)</th>
-                <th>ຜູ້ປ້ອນ</th>
-                <th style="text-align: center;">ຈັດການ</th>
+                <th>ຄ້າງຫ້ອງ</th>
+                <th>ໜ້າຮຽນຕົວຈິງ</th>
+                <th>ວັນທີ</th>
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -280,74 +518,6 @@
       </section>
 
     </main>
-  </div>
-
-  <!-- MODAL: Import Excel File (.xlsx / .xls / .csv) -->
-  <div class="modal-overlay" id="excelImportModal">
-    <div class="modal-box" style="max-width: 750px;">
-      <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-file-excel" style="color: var(--accent-success);"></i> ນຳເຂົ້າຂໍ້ມູນຈາກຟາຍ Excel (.xlsx, .xls, .csv)</h3>
-        <button class="close-btn" id="closeExcelModalBtn">&times;</button>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 16px;">
-        
-        <!-- File Dropzone -->
-        <div class="file-dropzone" id="excelDropzone">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 10px;"></i>
-          <p style="font-weight: 600; font-size: 1.05rem;">ລາກຟາຍ Excel ມາຮ່ວງໃສ່ບ່ອນນີ້ ຫຼື ຄລິກເພື່ອເລືອກຟາຍ</p>
-
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
-          <button type="button" class="btn btn-secondary btn-sm" id="browseExcelFileBtn" style="margin-top: 10px;">
-            <i class="fa-solid fa-folder-open"></i> ເລືອກຟາຍ Excel...
-          </button>
-        </div>
-
-        <!-- Import Target Options -->
-        <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
-          <label style="font-weight: 600;">ຮູບແບບການນຳເຂົ້າຂໍ້ມູນ (Import Options):</label>
-
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="radio" name="importTarget" value="PRESETS" checked>
-            <span><strong>ນຳເຂົ້າເປັນ "ລາຍຊື່ເມືອງ/ໂຮງຮຽນ/ຂັ້ນຮຽນ" (Master Lists)</strong> - ເພື່ອອັບເດດ Dropdown</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="radio" name="importTarget" value="RECORDS">
-            <span><strong>ນຳເຂົ້າເປັນ "ລາຍການສະຖິຕິຂໍ້ມູນນັກຮຽນ" (Full Data Records)</strong> - ເຂົ້າຕາຕະລາງ</span>
-          </label>
-        </div>
-
-        <!-- Template Download Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-muted);">
-          <span><i class="fa-solid fa-lightbulb"></i> ທ່ານສາມາດດາວໂຫຼດຟາຍແມ່ແບບ Excel ຕົວຢ່າງໄດ້ທີ່ນີ້:</span>
-          <button type="button" class="btn btn-secondary btn-sm" id="downloadExcelTemplateBtn">
-            <i class="fa-solid fa-download"></i> ດາວໂຫຼດແມ່ແບບ Excel
-          </button>
-        </div>
-
-        <!-- File Preview Table -->
-        <div id="excelPreviewContainer" style="display: none; margin-top: 10px;">
-          <h4 style="margin-bottom: 8px; color: var(--accent-primary); display: flex; justify-content: space-between; align-items: center;">
-            <span><i class="fa-solid fa-table"></i> ຕົວຢ່າງຂໍ້ມູນຈາກ Excel (<span id="excelRowCount">0</span> ຖ້ວນ)</span>
-            <span id="excelFileNameBadge" class="chip chip-primary"></span>
-          </h4>
-          <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
-            <table class="data-table" id="excelPreviewTable">
-              <thead id="excelPreviewHead"></thead>
-              <tbody id="excelPreviewBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-          <button type="button" class="btn btn-secondary" id="cancelExcelModalBtn">ຍົກເລີກ</button>
-          <button type="button" class="btn btn-success" id="confirmExcelImportBtn" disabled>
-            <i class="fa-solid fa-check"></i> ຢືນຢັນການນຳເຂົ້າ
-          </button>
-        </div>
-
-      </div>
-    </div>
   </div>
 
   <!-- MODAL: Detail View -->
@@ -367,6 +537,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
