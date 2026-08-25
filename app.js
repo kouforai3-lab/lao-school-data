@@ -381,9 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const saved = localStorage.getItem('lao_school_records');
       if (saved !== null) {
         records = JSON.parse(saved) || [];
-      } else if (typeof SAMPLE_INITIAL_RECORDS !== 'undefined' && Array.isArray(SAMPLE_INITIAL_RECORDS)) {
-        records = [...SAMPLE_INITIAL_RECORDS];
-        localStorage.setItem('lao_school_records', JSON.stringify(records));
       } else {
         records = [];
       }
@@ -2014,13 +2011,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error("HTTP error " + res.status);
       const json = await res.json();
       if (json && json.status === 'success' && Array.isArray(json.data)) {
-        if (json.data.length > 0) {
-          records = json.data;
-          saveRecordsToStorage();
-          renderApp();
-          if (!silent) showToast(`Sync ຂໍ້ມູນຈາກ Google Sheet ສຳເລັດ! (${json.data.length} ລາຍການ)`, "success");
-        } else if (!silent) {
-          showToast("DataRecords ໃນ Google Sheet ຍັງຫວ່າງເປົ່າ!", "warning");
+        // ✅ ແກ້ໄຂ: ອັບເດດ records ສະເໝີ (ຖ້າ json.data ເປັນ [] ໃຫ້ລ້າງ Dashboard ອັດໂນມັດ)
+        records = json.data;
+        saveRecordsToStorage();
+        renderApp();
+        if (!silent) {
+          if (json.data.length > 0) {
+            showToast(`Sync ຂໍ້ມູນຈາກ Google Sheet ສຳເລັດ! (${json.data.length} ລາຍການ)`, "success");
+          } else {
+            showToast("DataRecords ໃນ Google Sheet ຫວ່າງເປົ່າ (ລ້າງຂໍ້ມູນ Dashboard ແລ້ວ)", "info");
+          }
         }
       }
     } catch (err) {
