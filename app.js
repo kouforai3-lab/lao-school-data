@@ -6,6 +6,8 @@
 const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydJFn8REuZ0zgFQNHPEY49oSsbO660_mD3z71EJ7s3E4kFYZH8kQcCowH3ai93OCuSDQ/exec";
 
 document.addEventListener('DOMContentLoaded', () => {
+  let currentPrevMonthDropoutTotal = 0;
+  let currentPrevMonthDropoutFemale = 0;
   // Application State
   let records = [];
 
@@ -94,37 +96,194 @@ document.addEventListener('DOMContentLoaded', () => {
     syncSchoolsFromGoogleSheet();
   }
 
+  function autoFillPreviousMonthActualAttending() {
+    if (!entryLaoMonthSelect || !passedRegisteredTotal) return;
+    const monthVal = (entryLaoMonthSelect.value || "").trim();
+    const isAugust = monthVal === "08" || monthVal === "ສິງຫາ";
+
+    if (isAugust) {
+      currentPrevMonthDropoutTotal = 0;
+      currentPrevMonthDropoutFemale = 0;
+      if (passedRegisteredTotal) {
+        passedRegisteredTotal.readOnly = false;
+        passedRegisteredTotal.style.backgroundColor = "";
+        passedRegisteredTotal.style.cursor = "";
+      }
+      if (passedRegisteredFemale) {
+        passedRegisteredFemale.readOnly = false;
+        passedRegisteredFemale.style.backgroundColor = "";
+        passedRegisteredFemale.style.cursor = "";
+      }
+      const helperEl = document.getElementById('prevMonthAutoNotice');
+      if (helperEl) helperEl.style.display = 'none';
+      return;
+    }
+
+    const sch = (schoolSelect?.value || "").trim();
+    const grade = (gradeLevelSelect?.value || "").trim();
+    const year = (entryAcademicYearSelect?.value || "").trim();
+
+    const helperEl = document.getElementById('prevMonthAutoNotice') || createPrevMonthNoticeElement();
+
+    if (!sch || !grade) {
+      currentPrevMonthDropoutTotal = 0;
+      currentPrevMonthDropoutFemale = 0;
+      if (passedRegisteredTotal) {
+        passedRegisteredTotal.readOnly = false;
+        passedRegisteredTotal.style.backgroundColor = "";
+        passedRegisteredTotal.style.cursor = "";
+      }
+      if (passedRegisteredFemale) {
+        passedRegisteredFemale.readOnly = false;
+        passedRegisteredFemale.style.backgroundColor = "";
+        passedRegisteredFemale.style.cursor = "";
+      }
+      if (helperEl) helperEl.style.display = 'none';
+      return;
+    }
+
+    const laoMonths = ["ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ", "ມິຖຸນາ", "ກໍລະກົດ", "ສິງຫາ", "ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ"];
+    let mIdx = laoMonths.indexOf(monthVal);
+    if (mIdx === -1) {
+      const n = parseInt(monthVal);
+      if (!isNaN(n) && n >= 1 && n <= 12) mIdx = n - 1;
+    }
+
+    let prevMonthName = "";
+    let prevMonthCode = "";
+
+    if (mIdx > 0) {
+      prevMonthName = laoMonths[mIdx - 1];
+      prevMonthCode = String(mIdx).padStart(2, '0');
+    } else if (mIdx === 0) {
+      prevMonthName = "ທັນວາ";
+      prevMonthCode = "12";
+    }
+
+    if (prevMonthName) {
+      const prevRec = records.find(r => {
+        const rSch = (r.school || "").trim();
+        const rGrade = (r.grade_level || "").trim();
+        const rMonth = (r.entry_month_only || "").trim();
+        const rYear = (r.entry_academic_year || "").trim();
+
+        const schMatch = rSch === sch || rSch.includes(sch) || sch.includes(rSch);
+        const gradeMatch = rGrade === grade;
+        const monthMatch = rMonth === prevMonthName || rMonth === prevMonthCode || (parseInt(rMonth) === (mIdx > 0 ? mIdx : 12));
+        const yearMatch = !year || !rYear || rYear === year;
+
+        return schMatch && gradeMatch && monthMatch && yearMatch;
+      });
+
+      if (prevRec && prevRec.actual_attending_total !== undefined) {
+        passedRegisteredTotal.value = prevRec.actual_attending_total;
+        passedRegisteredTotal.readOnly = true;
+        passedRegisteredTotal.style.backgroundColor = "rgba(16, 185, 129, 0.08)";
+        passedRegisteredTotal.style.cursor = "not-allowed";
+
+        if (passedRegisteredFemale) {
+          passedRegisteredFemale.value = prevRec.actual_attending_female;
+          passedRegisteredFemale.readOnly = true;
+          passedRegisteredFemale.style.backgroundColor = "rgba(16, 185, 129, 0.08)";
+          passedRegisteredFemale.style.cursor = "not-allowed";
+        }
+
+        currentPrevMonthDropoutTotal = prevRec.dropout_total || 0;
+        currentPrevMonthDropoutFemale = prevRec.dropout_female || 0;
+
+        if (helperEl) {
+          helperEl.style.display = 'block';
+          helperEl.style.color = 'var(--accent-success)';
+          helperEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ໂອໂຕດຶງຈາກເດືອນ${prevMonthName} (ໜ້າຮຽນຕົວຈິງ: ${prevRec.actual_attending_total}, ປະລະເດືອນ${prevMonthName}: ${currentPrevMonthDropoutTotal})`;
+        }
+        calculateActualAttending();
+        return;
+      }
+    }
+
+    currentPrevMonthDropoutTotal = 0;
+    currentPrevMonthDropoutFemale = 0;
+
+    if (passedRegisteredTotal) {
+      passedRegisteredTotal.readOnly = false;
+      passedRegisteredTotal.style.backgroundColor = "";
+      passedRegisteredTotal.style.cursor = "";
+    }
+    if (passedRegisteredFemale) {
+      passedRegisteredFemale.readOnly = false;
+      passedRegisteredFemale.style.backgroundColor = "";
+      passedRegisteredFemale.style.cursor = "";
+    }
+
+    if (helperEl && prevMonthName) {
+      helperEl.style.display = 'block';
+      helperEl.style.color = 'var(--accent-warning)';
+      helperEl.innerHTML = `<i class="fa-solid fa-circle-info"></i> ບໍ່ພົບຂໍ້ມູນເດືອນ ${prevMonthName} ໃນລະບົບ, ກະລຸນາປ້ອນຈຳນວນເລີ່ມຕົ້ນຊົ່ວຄາວ`;
+    }
+  }
+
+  function createPrevMonthNoticeElement() {
+    let el = document.getElementById('prevMonthAutoNotice');
+    if (!el && passedRegisteredLabel) {
+      el = document.createElement('div');
+      el.id = 'prevMonthAutoNotice';
+      el.style.fontSize = '0.78rem';
+      el.style.marginTop = '4px';
+      el.style.fontWeight = '600';
+      passedRegisteredLabel.parentNode.appendChild(el);
+    }
+    return el;
+  }
+
   function updateMonthDynamicLabels() {
     if (!entryLaoMonthSelect) return;
     const val = (entryLaoMonthSelect.value || "").trim();
-    if (val === "08" || val === "ສິງຫາ") {
+    const isAugust = val === "08" || val === "ສິງຫາ";
+
+    // 1. ໃຫ້ເພີ່ມຊ່ອງ ນັກຮຽນທ້າຍປີຜ່ານມາ-ມາລົງທະບຽນ (Field 8) ໃຫ້ສະແດງທຸກໆເດືອນ
+    if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
+
+    if (isAugust) {
       if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍປີຜ່ານມາ <span class="req">*</span>';
       if (augustPrevYearLabel) augustPrevYearLabel.innerHTML = '8. ນັກຮຽນທ້າຍປີຜ່ານມາ-ມາລົງທະບຽນຮຽນຕົວຈິງ <span class="req">*</span>';
       if (repeaterLabel) repeaterLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ <span class="req">*</span>';
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
-      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7-8)</small> <span class="req">*</span>';
       if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ) + (ຄ້າງຫ້ອງ) + (ຍ້າຍເຂົ້າ) - (ຍ້າຍອອກ) - (ປະລະ)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11])';
 
-      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
       if (repeaterContainer) repeaterContainer.style.display = 'block';
-    } else {
-      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <span class="req">*</span>';
-      if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '8. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
-      if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
-      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '10. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
-      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 11. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ນັກຮຽນທ້າຍເດືອນ) + (ຍ້າຍເຂົ້າ) - (ຍ້າຍອອກ) - (ປະລະ)';
 
-      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'none';
-      if (augustPrevYearTotal) augustPrevYearTotal.value = 0;
-      if (augustPrevYearFemale) augustPrevYearFemale.value = 0;
-      if (augustPrevYearError) augustPrevYearError.style.display = 'none';
+      // ເດືອນສິງຫາ: ຊ່ອງ 7 ປ້ອນເອງໄດ້
+      if (passedRegisteredTotal) {
+        passedRegisteredTotal.readOnly = false;
+        passedRegisteredTotal.style.backgroundColor = '';
+        passedRegisteredTotal.style.cursor = '';
+      }
+      if (passedRegisteredFemale) {
+        passedRegisteredFemale.readOnly = false;
+        passedRegisteredFemale.style.backgroundColor = '';
+        passedRegisteredFemale.style.cursor = '';
+      }
+    } else {
+      // ຖ້າບໍ່ແມ່ນເດືອນສິງຫາ
+      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <small style="color:var(--accent-info); font-weight:normal;">(ໂອໂຕຈາກເດືອນຜ່ານມາ)</small> <span class="req">*</span>';
+      if (augustPrevYearLabel) augustPrevYearLabel.innerHTML = '8. ນັກຮຽນມາລົງທະບຽນ/ຮຽນຕໍ່ <span class="req">*</span>';
+      if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
+      if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: ປະລະເດືອນຜ່ານມາ - 8)</small> <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = (ປະລະເດືອນຜ່ານມາ - 8) | ໜ້າຮຽນຕົວຈິງ [13] = 7 + 8 + 10 - 11';
+
       if (repeaterContainer) repeaterContainer.style.display = 'none';
-      if (repeaterTotal) repeaterTotal.value = 0;
-      if (repeaterFemale) repeaterFemale.value = 0;
+      if (repeaterTotal) repeaterTotal.value = '';
+      if (repeaterFemale) repeaterFemale.value = '';
+
+      // ດຶງຂໍ້ມູນໜ້າຮຽນຕົວຈິງເດືອນຜ່ານມາໃສ່ ຊ່ອງ 7 ອັດໂນມັດ (Readonly)
+      autoFillPreviousMonthActualAttending();
     }
+
     validateAugustCounts();
     calculateActualAttending();
   }
@@ -269,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (districtSelect) {
       districtSelect.disabled = false;
       const curVal = districtSelect.value;
-      districtSelect.innerHTML = '<option value="">-- ເລືອກເມືອງ --</option>';
+      districtSelect.innerHTML = '<option value="">ເລືອກເມືອງ</option>';
       districts.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d;
@@ -305,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!selectedDistrict) {
       schoolSelect.disabled = true;
-      schoolSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກເມືອງກ່ອນ --</option>';
+      schoolSelect.innerHTML = '<option value="">ກະລຸນາເລືອກເມືອງກ່ອນ</option>';
       if (schoolCodeInput) schoolCodeInput.value = "";
       resetLevelAndGradeDropdowns();
       return;
@@ -313,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     schoolSelect.disabled = false;
     const curVal = schoolSelect.value;
-    schoolSelect.innerHTML = '<option value="">-- ເລືອກໂຮງຮຽນ --</option>';
+    schoolSelect.innerHTML = '<option value="">ເລືອກໂຮງຮຽນ</option>';
 
     let list = [];
     if (typeof DEFAULT_LAO_DISTRICTS !== 'undefined' && DEFAULT_LAO_DISTRICTS[selectedDistrict]) {
@@ -324,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (list.length === 0) {
       schoolSelect.disabled = true;
-      schoolSelect.innerHTML = '<option value="">-- ບໍ່ມີໂຮງຮຽນໃນເມືອງນີ້ --</option>';
+      schoolSelect.innerHTML = '<option value="">ບໍ່ມີໂຮງຮຽນໃນເມືອງນີ້</option>';
       resetLevelAndGradeDropdowns();
       return;
     }
@@ -345,11 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetLevelAndGradeDropdowns() {
     if (educationLevelSelect) {
       educationLevelSelect.disabled = true;
-      educationLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>';
+      educationLevelSelect.innerHTML = '<option value="">ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ</option>';
     }
     if (gradeLevelSelect) {
       gradeLevelSelect.disabled = true;
-      gradeLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>';
+      gradeLevelSelect.innerHTML = '<option value="">ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ</option>';
     }
   }
 
@@ -357,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!educationLevelSelect) return;
     if (educationLevelSelect.disabled) return;
     educationLevelSelect.innerHTML = `
-      <option value="">-- ເລືອກຊັ້ນຮຽນ --</option>
+      <option value="">ເລືອກຊັ້ນຮຽນ</option>
       <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
       <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
       <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
@@ -369,13 +528,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!selectedLevel) {
       gradeLevelSelect.disabled = true;
-      gradeLevelSelect.innerHTML = '<option value="">-- ກະລຸນາເລືອກຊັ້ນຮຽນກ່ອນ --</option>';
+      gradeLevelSelect.innerHTML = '<option value="">ກະລຸນາເລືອກຊັ້ນຮຽນກ່ອນ</option>';
       return;
     }
 
     gradeLevelSelect.disabled = false;
     const curVal = gradeLevelSelect.value;
-    gradeLevelSelect.innerHTML = '<option value="">-- ເລືອກຂັ້ນຮຽນ --</option>';
+    gradeLevelSelect.innerHTML = '<option value="">ເລືອກຂັ້ນຮຽນ</option>';
 
     let grades = [];
     if (typeof EDUCATION_LEVELS !== 'undefined' && EDUCATION_LEVELS[selectedLevel]) {
@@ -415,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (entryLaoMonthSelect) {
       const cur = entryLaoMonthSelect.value || String(new Date().getMonth() + 1).padStart(2, '0');
-      entryLaoMonthSelect.innerHTML = '<option value="">-- ເລືອກເດືອນ --</option>';
+      entryLaoMonthSelect.innerHTML = '<option value="">ເລືອກເດືອນ</option>';
       months.forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.name;
@@ -440,6 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const years = ["2026-2027", "2027-2028", "2028-2029", "2029-2030", "2030-2031"];
 
     if (entryAcademicYearSelect) {
+      entryAcademicYearSelect.addEventListener("change", () => {
+        autoFillPreviousMonthActualAttending(); // trigger-year
+        calculateActualAttending();
+      });
       const cur = entryAcademicYearSelect.value || "2026-2027";
       entryAcademicYearSelect.innerHTML = '';
       years.forEach(y => {
@@ -513,6 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (schoolCodeInput) schoolCodeInput.value = lookupSchoolCode(schName);
+        autoFillPreviousMonthActualAttending(); // trigger-school
 
         // Auto select & restrict Education Level & Grade Level based on selected school
         if (educationLevelSelect) {
@@ -532,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
             populateGradeLevelDropdown("ມັດທະຍົມສົມບູນ");
           } else {
             educationLevelSelect.innerHTML = `
-              <option value="">-- ເລືອກຊັ້ນຮຽນ --</option>
+              <option value="">ເລືອກຊັ້ນຮຽນ</option>
               <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
               <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
               <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
@@ -592,36 +756,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Automatic Formula Calculation
   function calculateActualAttending() {
-    const isAugust = entryLaoMonthSelect && ((entryLaoMonthSelect.value || "").trim() === "08" || (entryLaoMonthSelect.value || "").trim() === "ສິງຫາ");
+    const val = entryLaoMonthSelect ? (entryLaoMonthSelect.value || "").trim() : "";
+    const isAugust = val === "08" || val === "ສິງຫາ";
 
-    const trInTot = parseInt(transferInTotal?.value) || 0;
-    const trInFem = parseInt(transferInFemale?.value) || 0;
-    const trOutTot = parseInt(transferOutTotal?.value) || 0;
-    const trOutFem = parseInt(transferOutFemale?.value) || 0;
-    const dropTot  = parseInt(dropoutTotal?.value)    || 0;
-    const dropFem  = parseInt(dropoutFemale?.value)   || 0;
+    const f7Tot = parseInt(passedRegisteredTotal?.value) || 0;
+    const f7Fem = parseInt(passedRegisteredFemale?.value) || 0;
+    const f8Tot = parseInt(augustPrevYearTotal?.value) || 0;
+    const f8Fem = parseInt(augustPrevYearFemale?.value) || 0;
 
-    let calcTot = 0;
-    let calcFem = 0;
+    let calcDropTot = 0;
+    let calcDropFem = 0;
 
     if (isAugust) {
-      // ສູດ: ລົງທະບຽນ (8) + ຄ້າງຫ້ອງ (9) + ຍ້າຍເຂົ້າ (10) − ຍ້າຍອອກ (11) − ປະລະ (12)
-      const regTot = parseInt(augustPrevYearTotal?.value) || 0;
-      const regFem = parseInt(augustPrevYearFemale?.value) || 0;
-      const repTot = parseInt(repeaterTotal?.value) || 0;
-      const repFem = parseInt(repeaterFemale?.value) || 0;
-      calcTot = Math.max(0, regTot + repTot + trInTot - trOutTot - dropTot);
-      calcFem = Math.max(0, regFem + repFem + trInFem - trOutFem - dropFem);
+      // ເດືອນສິງຫາ: ປະລະ = (ທ້າຍປີຜ່ານມາ [7]) - (ມາລົງທະບຽນ [8])
+      calcDropTot = Math.max(0, f7Tot - f8Tot);
+      calcDropFem = Math.max(0, f7Fem - f8Fem);
     } else {
-      // ສູດ: ທ້າຍເດືອນ + ຍ້າຍເຂົ້າ − ຍ້າຍອອກ − ປະລະ
-      const regTot = parseInt(passedRegisteredTotal?.value)  || 0;
-      const regFem = parseInt(passedRegisteredFemale?.value) || 0;
-      calcTot = Math.max(0, regTot + trInTot - trOutTot - dropTot);
-      calcFem = Math.max(0, regFem + trInFem - trOutFem - dropFem);
+      // ບໍ່ແມ່ນເດືອນສິງຫາ: ປະລະ = (ປະລະເດືອນຜ່ານມາ) - (ມາລົງທະບຽນ/ຮຽນຕໍ່ [8])
+      calcDropTot = Math.max(0, currentPrevMonthDropoutTotal - f8Tot);
+      calcDropFem = Math.max(0, currentPrevMonthDropoutFemale - f8Fem);
     }
 
-    if (actualAttendingTotal)  actualAttendingTotal.value  = calcTot;
-    if (actualAttendingFemale) actualAttendingFemale.value = calcFem;
+    if (dropoutTotal)  dropoutTotal.value  = calcDropTot;
+    if (dropoutFemale) dropoutFemale.value = calcDropFem;
+
+    if (dropoutReason) {
+      if (calcDropTot === 0) {
+        dropoutReason.required = false;
+        if (!dropoutReason.value) dropoutReason.value = "-";
+      } else {
+        dropoutReason.required = true;
+        if (dropoutReason.value === "-") dropoutReason.value = "";
+      }
+    }
+
+    // 2. ມີໜ້າຮຽນຕົວຈິງ (ຊ່ອງ 13)
+    const trInTot  = parseInt(transferInTotal?.value)  || 0;
+    const trInFem  = parseInt(transferInFemale?.value) || 0;
+    const trOutTot = parseInt(transferOutTotal?.value) || 0;
+    const trOutFem = parseInt(transferOutFemale?.value) || 0;
+
+    let calcAttendingTot = 0;
+    let calcAttendingFem = 0;
+
+    if (isAugust) {
+      // ເດືອນສິງຫາ: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11])
+      const repTot = parseInt(repeaterTotal?.value) || 0;
+      const repFem = parseInt(repeaterFemale?.value) || 0;
+      calcAttendingTot = Math.max(0, f8Tot + repTot + trInTot - trOutTot);
+      calcAttendingFem = Math.max(0, f8Fem + repFem + trInFem - trOutFem);
+    } else {
+      // ບໍ່ແມ່ນເດືອນສິງຫາ: (ຊ່ອງ 7) + (ຊ່ອງ 8) + (ຊ່ອງ 10) - (ຊ່ອງ 11)
+      calcAttendingTot = Math.max(0, f7Tot + f8Tot + trInTot - trOutTot);
+      calcAttendingFem = Math.max(0, f7Fem + f8Fem + trInFem - trOutFem);
+    }
+
+    if (actualAttendingTotal)  actualAttendingTotal.value  = calcAttendingTot;
+    if (actualAttendingFemale) actualAttendingFemale.value = calcAttendingFem;
   }
 
   // Form Submit Handler

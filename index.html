@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ ປະຖົມ ແລະ ມັດທະຍົມ - Lao School Data Entry Form">
-  <title>ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ (Student Data Entry Form)</title>
+  <title>ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,8 +29,7 @@
         </div>
         <div>
           <h1 class="brand-title">ຟອມປ້ອນຂໍ້ມູນນັກຮຽນ</h1>
-          <p class="brand-subtitle">ແຂວງອຸດົມໄຊ (Lao Student Data Entry Form)</p>
-        </div>
+                  </div>
       </div>
       
       <div class="header-controls">
@@ -60,16 +59,16 @@
             
             <!-- Group 1: ຂໍ້ມູນທົ່ວໄປ -->
             <div class="form-group-title">
-              <i class="fa-solid fa-map-location-dot"></i> ສ່ວນທີ 1: ຂໍ້ມູນທົ່ວໄປ (ແຂວງອຸດົມໄຊ)
+              <i class="fa-solid fa-map-location-dot"></i> ສ່ວນທີ 1: ຂໍ້ມູນທົ່ວໄປ
             </div>
 
             <!-- Field 1: ຊື່ເມືອງ Dropdown -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label for="districtSelect" class="form-label">
                 1. ຊື່ເມືອງ <span class="req">*</span>
               </label>
               <select id="districtSelect" class="select-control" required>
-                <option value="">-- ເລືອກເມືອງ --</option>
+                <option value="">ເລືອກເມືອງ</option>
                 <option value="ເມືອງໄຊ">ເມືອງໄຊ</option>
                 <option value="ເມືອງຫຼາ">ເມືອງຫຼາ</option>
                 <option value="ເມືອງນາໝໍ້">ເມືອງນາໝໍ້</option>
@@ -81,31 +80,27 @@
             </div>
 
             <!-- Field 2: ຊື່ໂຮງຮຽນ Dropdown (Cascading from District) -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label for="schoolSelect" class="form-label">
                 2. ຊື່ໂຮງຮຽນ <span class="req">*</span>
               </label>
               <select id="schoolSelect" class="select-control" required disabled>
-                <option value="">-- ກະລຸນາເລືອກເມືອງກ່ອນ --</option>
+                <option value="">ກະລຸນາເລືອກເມືອງກ່ອນ</option>
               </select>
             </div>
 
-            <!-- Field 2.5: ລະຫັດໂຮງຮຽນ (Auto-filled, editable) -->
-            <div class="form-field col-4">
+            <!-- Field 2.5: ລະຫັດໂຮງຮຽນ (Auto-filled) -->
+            <div class="form-field col-6">
               <label for="schoolCodeInput" class="form-label">
                 ລະຫັດໂຮງຮຽນ <span class="req">*</span>
               </label>
-              <input type="text" id="schoolCodeInput" class="input-control" 
-                placeholder="ຕົວຢ່າງ: 20401001, 10401255..." required
-                style="font-family: monospace; letter-spacing: 1px; font-weight: 600;">
-              <small style="color: var(--text-muted); font-size: 0.76rem;">
-                <i class="fa-solid fa-circle-info"></i> ລະຫັດຈະຖືກ auto-fill ເມື່ອເລືອກໂຮງຮຽນ
-              </small>
+              <input id="schoolCodeInput" class="input-control" readonly placeholder="" required style="font-family: monospace; letter-spacing: 1px; font-weight: 600; background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
+              
             </div>
 
 
             <!-- Field 3: ຊື່ ແລະ ນາມສະກຸນ ຜູ້ປ້ອນຂໍ້ມູນ -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label for="collectorName" class="form-label">
                 3. ຊື່ ແລະ ນາມສະກຸນ ຜູ້ປ້ອນຂໍ້ມູນ <span class="req">*</span>
               </label>
@@ -113,12 +108,12 @@
             </div>
 
             <!-- Field 4: ຊັ້ນຮຽນ Dropdown (Auto Selected from School) -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label for="educationLevelSelect" class="form-label">
                 4. ຊັ້ນຮຽນ <span class="req">*</span>
               </label>
               <select id="educationLevelSelect" class="select-control" required disabled>
-                <option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>
+                <option value="">ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ</option>
                 <option value="ປະຖົມສຶກສາ">ປະຖົມສຶກສາ</option>
                 <option value="ມັດທະຍົມສຶກສາຕອນຕົ້ນ">ມັດທະຍົມສຶກສາຕອນຕົ້ນ</option>
                 <option value="ມັດທະຍົມສົມບູນ">ມັດທະຍົມສົມບູນ</option>
@@ -126,23 +121,23 @@
             </div>
 
             <!-- Field 5: ຂັ້ນຮຽນ Dropdown (Cascading from School) -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label for="gradeLevelSelect" class="form-label">
                 5. ຂັ້ນຮຽນ <span class="req">*</span>
               </label>
               <select id="gradeLevelSelect" class="select-control" required disabled>
-                <option value="">-- ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ --</option>
+                <option value="">ກະລຸນາເລືອກໂຮງຮຽນກ່ອນ</option>
               </select>
             </div>
 
             <!-- Field 6: ເດືອນ ແລະ ສົກຮຽນ ປ້ອນຂໍ້ມູນ -->
-            <div class="form-field col-4">
+            <div class="form-field col-6">
               <label class="form-label">
                 6. ເດືອນ ແລະ ສົກຮຽນ ປ້ອນຂໍ້ມູນ <span class="req">*</span>
               </label>
               <div class="input-group-dual">
                 <select id="entryLaoMonthSelect" class="select-control" required>
-                  <option value="">-- ເລືອກເດືອນ --</option>
+                  <option value="">ເລືອກເດືອນ</option>
                   <option value="01">ມັງກອນ</option>
                   <option value="02">ກຸມພາ</option>
                   <option value="03">ມີນາ</option>
@@ -172,19 +167,19 @@
               <i class="fa-solid fa-calculator"></i> ສ່ວນທີ 2: ສະຖິຕິນັກຮຽນໃນສົກຮຽນ
             </div>
 
-            <!-- Field 7: ສະຖິຕິນັກຮຽນ (ຮວມ, ຍິງ) -->
+            <!-- Field 7: ສະຖິຕິນັກຮຽນ (ລວມ, ຍິງ) -->
             <div class="form-field col-6">
               <label class="form-label" id="passedRegisteredLabel">
                 7. ນັກຮຽນທ້າຍເດືອນ <span class="req">*</span>
               </label>
               <div class="input-group-dual">
                 <div>
-                  <input type="number" id="passedRegisteredTotal" class="input-control calc-trigger" min="0" placeholder="ຈຳນວນຮວມ" required>
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ</small>
+                  <input type="number" id="passedRegisteredTotal" class="input-control calc-trigger" min="0" placeholder="ຈຳນວນລວມ" required>
+                  
                 </div>
                 <div>
                   <input type="number" id="passedRegisteredFemale" class="input-control" min="0" placeholder="ຍິງ" required>
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
+                  
                 </div>
               </div>
               <div id="err_passedRegistered" class="female-error" style="display:none;color:var(--accent-danger);font-size:0.78rem;margin-top:4px;font-weight:600;">
@@ -199,12 +194,12 @@
               </label>
               <div class="input-group-dual">
                 <div>
-                  <input type="number" id="augustPrevYearTotal" class="input-control calc-trigger" min="0" value="0" placeholder="ຈຳນວນຮວມ">
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ </small>
+                  <input type="number" id="augustPrevYearTotal" class="input-control calc-trigger" min="0" placeholder="ຈຳນວນລວມ">
+                  
                 </div>
                 <div>
-                  <input type="number" id="augustPrevYearFemale" class="input-control" min="0" value="0" placeholder="ຍິງ">
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ </small>
+                  <input type="number" id="augustPrevYearFemale" class="input-control" min="0" placeholder="ຍິງ">
+                  
                 </div>
               </div>
               <div id="augustPrevYearError" style="color: var(--accent-danger); font-size: 0.78rem; display: none; margin-top: 4px; font-weight: 600;">
@@ -215,19 +210,19 @@
               </div>
             </div>
 
-            <!-- Field 9 (August Only): ນັກຮຽນຄ້າງຫ້ອງ (ຮວມ, ຍິງ) -->
+            <!-- Field 9 (August Only): ນັກຮຽນຄ້າງຫ້ອງ (ລວມ, ຍິງ) -->
             <div class="form-field col-6" id="repeaterContainer" style="display: none;">
               <label class="form-label" id="repeaterLabel">
                 9. ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ <span class="req">*</span>
               </label>
               <div class="input-group-dual">
                 <div>
-                  <input type="number" id="repeaterTotal" class="input-control" min="0" value="0">
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ</small>
+                  <input type="number" id="repeaterTotal" class="input-control" min="0" placeholder="ທັງໝົດ">
+                  
                 </div>
                 <div>
-                  <input type="number" id="repeaterFemale" class="input-control" min="0" value="0">
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
+                  <input type="number" id="repeaterFemale" class="input-control" min="0" placeholder="ຍິງ">
+                  
                 </div>
               </div>
               <div id="err_repeater" class="female-error" style="display:none;color:var(--accent-danger);font-size:0.78rem;margin-top:4px;font-weight:600;">
@@ -235,19 +230,19 @@
               </div>
             </div>
 
-            <!-- Field: ຍ້າຍເຂົ້າມາຮຽນໃໝ່ (ຮວມ, ຍິງ) -->
+            <!-- Field: ຍ້າຍເຂົ້າມາຮຽນໃໝ່ (ລວມ, ຍິງ) -->
             <div class="form-field col-6">
               <label class="form-label" id="fieldTransferInLabel">
                 8. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>
               </label>
               <div class="input-group-dual">
                 <div>
-                  <input type="number" id="transferInTotal" class="input-control calc-trigger" min="0" value="0" required>
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ</small>
+                  <input type="number" id="transferInTotal" class="input-control calc-trigger" min="0" required placeholder="ທັງໝົດ">
+                  
                 </div>
                 <div>
-                  <input type="number" id="transferInFemale" class="input-control" min="0" value="0" required>
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
+                  <input type="number" id="transferInFemale" class="input-control" min="0" required placeholder="ຍິງ">
+                  
                 </div>
               </div>
               <div id="err_transferIn" class="female-error" style="display:none;color:var(--accent-danger);font-size:0.78rem;margin-top:4px;font-weight:600;">
@@ -255,19 +250,19 @@
               </div>
             </div>
 
-            <!-- Field: ຍ້າຍອອກ (ຮວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
+            <!-- Field: ຍ້າຍອອກ (ລວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
             <div class="form-field col-6">
               <label class="form-label" id="fieldTransferOutLabel">
                 9. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>
               </label>
               <div class="input-group-dual" style="margin-bottom: 8px;">
                 <div>
-                  <input type="number" id="transferOutTotal" class="input-control calc-trigger" min="0" value="0" required>
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ</small>
+                  <input type="number" id="transferOutTotal" class="input-control calc-trigger" min="0" required placeholder="ທັງໝົດ">
+                  
                 </div>
                 <div>
-                  <input type="number" id="transferOutFemale" class="input-control" min="0" value="0" required>
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
+                  <input type="number" id="transferOutFemale" class="input-control" min="0" required placeholder="ຍິງ">
+                  
                 </div>
               </div>
               <div id="err_transferOut" class="female-error" style="display:none;color:var(--accent-danger);font-size:0.78rem;margin-top:4px;font-weight:600;">
@@ -279,19 +274,19 @@
               <input type="text" id="transferOutReason" class="input-control" placeholder="ປ້ອນເຫດຜົນໃນການຍ້າຍອອກ..." required>
             </div>
 
-            <!-- Field: ປະລະການຮຽນ (ຮວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
+            <!-- Field: ປະລະການຮຽນ (ລວມ, ຍິງ, ເຫດຜົນ - Mandatory validation) -->
             <div class="form-field col-6">
               <label class="form-label" id="fieldDropoutLabel">
                 10. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>
               </label>
               <div class="input-group-dual" style="margin-bottom: 8px;">
                 <div>
-                  <input type="number" id="dropoutTotal" class="input-control calc-trigger" min="0" value="0" required>
-                  <small style="color: var(--text-muted); font-size: 0.78rem;">ທັງໝົດ</small>
+                  <input type="number" id="dropoutTotal" class="input-control calc-trigger" min="0" required placeholder="ທັງໝົດ" readonly style="font-weight: 700; color: var(--accent-danger); background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
+                  
                 </div>
                 <div>
-                  <input type="number" id="dropoutFemale" class="input-control" min="0" value="0" required>
-                  <small style="color: var(--accent-pink); font-size: 0.78rem;">ຍິງ</small>
+                  <input type="number" id="dropoutFemale" class="input-control" min="0" required placeholder="ຍິງ" readonly style="font-weight: 700; color: var(--accent-pink); background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
+                  
                 </div>
               </div>
               <div id="err_dropout" class="female-error" style="display:none;color:var(--accent-danger);font-size:0.78rem;margin-top:4px;font-weight:600;">
@@ -317,11 +312,11 @@
               <div class="input-group-dual">
                 <div>
                   <label class="form-label">ຈຳນວນໜ້າຮຽນຕົວຈິງ (ທັງໝົດ) <span class="req">*</span></label>
-                  <input type="number" id="actualAttendingTotal" class="input-control" min="0" required style="font-weight: 700; color: var(--accent-success);">
+                  <input type="number" id="actualAttendingTotal" class="input-control" min="0" required readonly style="font-weight: 700; color: var(--accent-success); background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
                 </div>
                 <div>
                   <label class="form-label">ຈຳນວນໜ້າຮຽນຕົວຈິງ (ຍິງ) <span class="req">*</span></label>
-                  <input type="number" id="actualAttendingFemale" class="input-control" min="0" required style="font-weight: 700; color: var(--accent-pink);">
+                  <input type="number" id="actualAttendingFemale" class="input-control" min="0" required readonly style="font-weight: 700; color: var(--accent-pink); background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
                 </div>
               </div>
             </div>
