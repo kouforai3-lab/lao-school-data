@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropoutTotal = document.getElementById('dropoutTotal');
   const dropoutFemale = document.getElementById('dropoutFemale');
   const dropoutReason = document.getElementById('dropoutReason');
+  const suspendedTotal = document.getElementById('suspendedTotal');
+  const suspendedFemale = document.getElementById('suspendedFemale');
+  const suspendedReason = document.getElementById('suspendedReason');
   const repeaterTotal = document.getElementById('repeaterTotal');
   const repeaterFemale = document.getElementById('repeaterFemale');
   const actualAttendingTotal = document.getElementById('actualAttendingTotal');
@@ -99,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function autoFillPreviousMonthActualAttending() {
     if (!entryLaoMonthSelect || !passedRegisteredTotal) return;
     const monthVal = (entryLaoMonthSelect.value || "").trim();
-    const isAugust = monthVal === "08" || monthVal === "ສິງຫາ";
+    const isSeptember = monthVal === "09" || monthVal === "ກັນຍາ";
 
-    if (isAugust) {
+    if (isSeptember) {
       currentPrevMonthDropoutTotal = 0;
       currentPrevMonthDropoutFemale = 0;
       if (passedRegisteredTotal) {
@@ -142,22 +145,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const laoMonths = ["ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ", "ມິຖຸນາ", "ກໍລະກົດ", "ສິງຫາ", "ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ"];
-    let mIdx = laoMonths.indexOf(monthVal);
+    const laoMonthsOrder = ["ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ", "ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ"];
+    const codeMonthsOrder = ["09", "10", "11", "12", "01", "02", "03", "04", "05"];
+
+    let mIdx = laoMonthsOrder.indexOf(monthVal);
     if (mIdx === -1) {
-      const n = parseInt(monthVal);
-      if (!isNaN(n) && n >= 1 && n <= 12) mIdx = n - 1;
+      const codeIdx = codeMonthsOrder.indexOf(monthVal);
+      if (codeIdx !== -1) mIdx = codeIdx;
     }
 
     let prevMonthName = "";
     let prevMonthCode = "";
 
     if (mIdx > 0) {
-      prevMonthName = laoMonths[mIdx - 1];
-      prevMonthCode = String(mIdx).padStart(2, '0');
-    } else if (mIdx === 0) {
-      prevMonthName = "ທັນວາ";
-      prevMonthCode = "12";
+      prevMonthName = laoMonthsOrder[mIdx - 1];
+      prevMonthCode = codeMonthsOrder[mIdx - 1];
     }
 
     if (prevMonthName) {
@@ -169,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const schMatch = rSch === sch || rSch.includes(sch) || sch.includes(rSch);
         const gradeMatch = rGrade === grade;
-        const monthMatch = rMonth === prevMonthName || rMonth === prevMonthCode || (parseInt(rMonth) === (mIdx > 0 ? mIdx : 12));
+        const monthMatch = rMonth === prevMonthName || rMonth === prevMonthCode;
         const yearMatch = !year || !rYear || rYear === year;
 
         return schMatch && gradeMatch && monthMatch && yearMatch;
@@ -194,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (helperEl) {
           helperEl.style.display = 'block';
           helperEl.style.color = 'var(--accent-success)';
-          helperEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ໂອໂຕດຶງຈາກເດືອນ${prevMonthName} (ໜ້າຮຽນຕົວຈິງ: ${prevRec.actual_attending_total}, ປະລະເດືອນ${prevMonthName}: ${currentPrevMonthDropoutTotal})`;
+          helperEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ໂອໂຕດຶງຈາກເດືອນ ${prevMonthName} (ໜ້າຮຽນຕົວຈິງ: ${prevRec.actual_attending_total}, ປະລະເດືອນ ${prevMonthName}: ${currentPrevMonthDropoutTotal})`;
         }
         calculateActualAttending();
         return;
@@ -238,24 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateMonthDynamicLabels() {
     if (!entryLaoMonthSelect) return;
     const val = (entryLaoMonthSelect.value || "").trim();
-    const isAugust = val === "08" || val === "ສິງຫາ";
+    const isSeptember = val === "09" || val === "ກັນຍາ";
+    const isOctober = val === "10" || val === "ຕຸລາ";
 
-    // 1. ໃຫ້ເພີ່ມຊ່ອງ ນັກຮຽນທ້າຍປີຜ່ານມາ-ມາລົງທະບຽນ (Field 8) ໃຫ້ສະແດງທຸກໆເດືອນ
-    if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
-
-    if (isAugust) {
+    if (isSeptember) {
+      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
       if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍປີຜ່ານມາ <span class="req">*</span>';
       if (augustPrevYearLabel) augustPrevYearLabel.innerHTML = '8. ນັກຮຽນທ້າຍປີຜ່ານມາ-ມາລົງທະບຽນຮຽນຕົວຈິງ <span class="req">*</span>';
       if (repeaterLabel) repeaterLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ <span class="req">*</span>';
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
-      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7-8)</small> <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7 - 8)</small> <span class="req">*</span>';
       if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11])';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11]) - (ໂຈະການຮຽນ)';
 
       if (repeaterContainer) repeaterContainer.style.display = 'block';
 
-      // ເດືອນສິງຫາ: ຊ່ອງ 7 ປ້ອນເອງໄດ້
       if (passedRegisteredTotal) {
         passedRegisteredTotal.readOnly = false;
         passedRegisteredTotal.style.backgroundColor = '';
@@ -266,21 +266,69 @@ document.addEventListener('DOMContentLoaded', () => {
         passedRegisteredFemale.style.backgroundColor = '';
         passedRegisteredFemale.style.cursor = '';
       }
-    } else {
-      // ຖ້າບໍ່ແມ່ນເດືອນສິງຫາ
-      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <small style="color:var(--accent-info); font-weight:normal;">(ໂອໂຕຈາກເດືອນຜ່ານມາ)</small> <span class="req">*</span>';
+      if (dropoutTotal) {
+        dropoutTotal.readOnly = true;
+        dropoutTotal.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        dropoutTotal.style.cursor = 'not-allowed';
+      }
+      if (dropoutFemale) {
+        dropoutFemale.readOnly = true;
+        dropoutFemale.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        dropoutFemale.style.cursor = 'not-allowed';
+      }
+    } else if (isOctober) {
+      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'block';
+      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <small style="color:var(--accent-info); font-weight:normal;">(ໂອໂຕຈາກເດືອນ 9)</small> <span class="req">*</span>';
       if (augustPrevYearLabel) augustPrevYearLabel.innerHTML = '8. ນັກຮຽນມາລົງທະບຽນ/ຮຽນຕໍ່ <span class="req">*</span>';
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
-      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: ປະລະເດືອນຜ່ານມາ - 8)</small> <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: ປະລະເດືອນ 9 - 8)</small> <span class="req">*</span>';
       if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = (ປະລະເດືອນຜ່ານມາ - 8) | ໜ້າຮຽນຕົວຈິງ [13] = 7 + 8 + 10 - 11';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = (ປະລະເດືອນ 9 - 8) | ໜ້າຮຽນຕົວຈິງ [13] = 7 + 8 + 10 - 11 - ໂຈະ';
 
       if (repeaterContainer) repeaterContainer.style.display = 'none';
       if (repeaterTotal) repeaterTotal.value = '';
       if (repeaterFemale) repeaterFemale.value = '';
 
-      // ດຶງຂໍ້ມູນໜ້າຮຽນຕົວຈິງເດືອນຜ່ານມາໃສ່ ຊ່ອງ 7 ອັດໂນມັດ (Readonly)
+      if (dropoutTotal) {
+        dropoutTotal.readOnly = true;
+        dropoutTotal.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        dropoutTotal.style.cursor = 'not-allowed';
+      }
+      if (dropoutFemale) {
+        dropoutFemale.readOnly = true;
+        dropoutFemale.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        dropoutFemale.style.cursor = 'not-allowed';
+      }
+
+      autoFillPreviousMonthActualAttending();
+    } else {
+      if (augustPrevYearContainer) augustPrevYearContainer.style.display = 'none';
+      if (augustPrevYearTotal) augustPrevYearTotal.value = '';
+      if (augustPrevYearFemale) augustPrevYearFemale.value = '';
+
+      if (passedRegisteredLabel) passedRegisteredLabel.innerHTML = '7. ນັກຮຽນທ້າຍເດືອນ <small style="color:var(--accent-info); font-weight:normal;">(ໂອໂຕຈາກເດືອນຜ່ານມາ)</small> <span class="req">*</span>';
+      if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
+      if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ທ້າຍເດືອນ [7] + ຍ້າຍເຂົ້າ [10] - ຍ້າຍອອກ [11] - ປະລະ [12] - ໂຈະການຮຽນ';
+
+      if (repeaterContainer) repeaterContainer.style.display = 'none';
+      if (repeaterTotal) repeaterTotal.value = '';
+      if (repeaterFemale) repeaterFemale.value = '';
+
+      if (dropoutTotal) {
+        dropoutTotal.readOnly = false;
+        dropoutTotal.style.backgroundColor = '';
+        dropoutTotal.style.cursor = '';
+      }
+      if (dropoutFemale) {
+        dropoutFemale.readOnly = false;
+        dropoutFemale.style.backgroundColor = '';
+        dropoutFemale.style.cursor = '';
+      }
+
       autoFillPreviousMonthActualAttending();
     }
 
@@ -291,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function validateAugustCounts() {
     if (!entryLaoMonthSelect) return true;
     const val = (entryLaoMonthSelect.value || "").trim();
-    if (val !== "08" && val !== "ສິງຫາ") {
+    if (val !== "09" && val !== "ກັນຍາ") {
       if (augustPrevYearError) augustPrevYearError.style.display = 'none';
       return true;
     }
@@ -315,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!isValid && augustPrevYearError) {
       augustPrevYearError.style.display = 'block';
-      augustPrevYearError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ຈຳນວນປ້ອນໄດ້ຕ້ອງບໍ່ເກີນ ນັກເສັງຜ່ານປີຜ່ານມາ (ຊ່ອງ 7: ທັງໝົດ ${maxTotal}, ຍິງ ${maxFemale}) - ${errorMsgs.join(', ')}`;
+      augustPrevYearError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ຈຳນວນປ້ອນໄດ້ຕ້ອງບໍ່ເກີນ ນັກຮຽນທ້າຍປີຜ່ານມາ (ຊ່ອງ 7: ທັງໝົດ ${maxTotal}, ຍິງ ${maxFemale}) - ${errorMsgs.join(', ')}`;
     } else if (augustPrevYearError) {
       augustPrevYearError.style.display = 'none';
     }
@@ -331,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { tot: transferInTotal,        fem: transferInFemale,        errId: 'err_transferIn' },
       { tot: transferOutTotal,       fem: transferOutFemale,       errId: 'err_transferOut' },
       { tot: dropoutTotal,           fem: dropoutFemale,           errId: 'err_dropout' },
+      { tot: suspendedTotal,         fem: suspendedFemale,         errId: 'err_suspended' },
       { tot: repeaterTotal,          fem: repeaterFemale,          errId: 'err_repeater' },
     ];
 
@@ -396,6 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
     records.forEach(r => {
       if (LEVEL_MAP[r.education_level]) {
         r.education_level = LEVEL_MAP[r.education_level];
+        migrated = true;
+      }
+    });
+    records.forEach(r => {
+      const m = (r.entry_month_only || "").trim();
+      if (m === "08" || m === "ສິງຫາ") {
+        r.entry_month_only = "ກັນຍາ";
         migrated = true;
       }
     });
@@ -555,28 +611,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function populateLaoMonthDropdowns() {
     const months = [
+      { value: "09", name: "ກັນຍາ" },
+      { value: "10", name: "ຕຸລາ" },
+      { value: "11", name: "ພະຈິກ" },
+      { value: "12", name: "ທັນວາ" },
       { value: "01", name: "ມັງກອນ" },
       { value: "02", name: "ກຸມພາ" },
       { value: "03", name: "ມີນາ" },
       { value: "04", name: "ເມສາ" },
-      { value: "05", name: "ພຶດສະພາ" },
-      { value: "06", name: "ມິຖຸນາ" },
-      { value: "07", name: "ກໍລະກົດ" },
-      { value: "08", name: "ສິງຫາ" },
-      { value: "09", name: "ກັນຍາ" },
-      { value: "10", name: "ຕຸລາ" },
-      { value: "11", name: "ພະຈິກ" },
-      { value: "12", name: "ທັນວາ" }
+      { value: "05", name: "ພຶດສະພາ" }
     ];
 
     if (entryLaoMonthSelect) {
-      const cur = entryLaoMonthSelect.value || String(new Date().getMonth() + 1).padStart(2, '0');
+      const cur = entryLaoMonthSelect.value || "ກັນຍາ";
       entryLaoMonthSelect.innerHTML = '<option value="">ເລືອກເດືອນ</option>';
       months.forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.name;
         opt.textContent = m.name;
-        if (m.value === cur || m.name === cur) opt.selected = true;
+        if (m.value === cur || m.name === cur || (cur === "09" && m.value === "09")) opt.selected = true;
         entryLaoMonthSelect.appendChild(opt);
       });
     }
@@ -721,6 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
       transferInTotal, transferInFemale,
       transferOutTotal, transferOutFemale,
       dropoutTotal, dropoutFemale,
+      suspendedTotal, suspendedFemale,
       repeaterTotal, repeaterFemale
     ];
 
@@ -752,9 +806,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Automatic Formula Calculation
+  function updateReasonRequirements() {
+    const trOutTot = parseInt(transferOutTotal?.value) || 0;
+    const dropTot  = parseInt(dropoutTotal?.value) || 0;
+    const suspTot  = parseInt(suspendedTotal?.value) || 0;
+
+    // 1. ຍ້າຍອອກ
+    if (transferOutReason) {
+      const reqEl = document.getElementById('req_transferOutReason');
+      if (trOutTot > 0) {
+        transferOutReason.required = true;
+        if (reqEl) reqEl.style.display = 'inline';
+      } else {
+        transferOutReason.required = false;
+        if (reqEl) reqEl.style.display = 'none';
+        if (transferOutReason.value === '-') transferOutReason.value = '';
+      }
+    }
+
+    // 2. ປະລະ
+    if (dropoutReason) {
+      const reqEl = document.getElementById('req_dropoutReason');
+      if (dropTot > 0) {
+        dropoutReason.required = true;
+        if (reqEl) reqEl.style.display = 'inline';
+      } else {
+        dropoutReason.required = false;
+        if (reqEl) reqEl.style.display = 'none';
+        if (dropoutReason.value === '-') dropoutReason.value = '';
+      }
+    }
+
+    // 3. ໂຈະ
+    if (suspendedReason) {
+      const reqEl = document.getElementById('req_suspendedReason');
+      if (suspTot > 0) {
+        suspendedReason.required = true;
+        if (reqEl) reqEl.style.display = 'inline';
+      } else {
+        suspendedReason.required = false;
+        if (reqEl) reqEl.style.display = 'none';
+        if (suspendedReason.value === '-') suspendedReason.value = '';
+      }
+    }
+  }
+
   function calculateActualAttending() {
     const val = entryLaoMonthSelect ? (entryLaoMonthSelect.value || "").trim() : "";
-    const isAugust = val === "08" || val === "ສິງຫາ";
+    const isSeptember = val === "09" || val === "ກັນຍາ";
+    const isOctober = val === "10" || val === "ຕຸລາ";
 
     const f7Tot = parseInt(passedRegisteredTotal?.value) || 0;
     const f7Fem = parseInt(passedRegisteredFemale?.value) || 0;
@@ -764,48 +864,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let calcDropTot = 0;
     let calcDropFem = 0;
 
-    if (isAugust) {
-      // ເດືອນສິງຫາ: ປະລະ = (ທ້າຍປີຜ່ານມາ [7]) - (ມາລົງທະບຽນ [8])
+    if (isSeptember) {
       calcDropTot = Math.max(0, f7Tot - f8Tot);
       calcDropFem = Math.max(0, f7Fem - f8Fem);
-    } else {
-      // ບໍ່ແມ່ນເດືອນສິງຫາ: ປະລະ = (ປະລະເດືອນຜ່ານມາ) - (ມາລົງທະບຽນ/ຮຽນຕໍ່ [8])
+      if (dropoutTotal)  dropoutTotal.value  = calcDropTot;
+      if (dropoutFemale) dropoutFemale.value = calcDropFem;
+    } else if (isOctober) {
       calcDropTot = Math.max(0, currentPrevMonthDropoutTotal - f8Tot);
       calcDropFem = Math.max(0, currentPrevMonthDropoutFemale - f8Fem);
+      if (dropoutTotal)  dropoutTotal.value  = calcDropTot;
+      if (dropoutFemale) dropoutFemale.value = calcDropFem;
+    } else {
+      calcDropTot = parseInt(dropoutTotal?.value) || 0;
+      calcDropFem = parseInt(dropoutFemale?.value) || 0;
     }
 
-    if (dropoutTotal)  dropoutTotal.value  = calcDropTot;
-    if (dropoutFemale) dropoutFemale.value = calcDropFem;
-
-    if (dropoutReason) {
-      if (calcDropTot === 0) {
-        dropoutReason.required = false;
-        if (!dropoutReason.value) dropoutReason.value = "-";
-      } else {
-        dropoutReason.required = true;
-        if (dropoutReason.value === "-") dropoutReason.value = "";
-      }
-    }
-
-    // 2. ມີໜ້າຮຽນຕົວຈິງ (ຊ່ອງ 13)
     const trInTot  = parseInt(transferInTotal?.value)  || 0;
     const trInFem  = parseInt(transferInFemale?.value) || 0;
     const trOutTot = parseInt(transferOutTotal?.value) || 0;
     const trOutFem = parseInt(transferOutFemale?.value) || 0;
+    const suspTot  = parseInt(suspendedTotal?.value)  || 0;
+    const suspFem  = parseInt(suspendedFemale?.value) || 0;
+
+    updateReasonRequirements();
 
     let calcAttendingTot = 0;
     let calcAttendingFem = 0;
 
-    if (isAugust) {
-      // ເດືອນສິງຫາ: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11])
+    if (isSeptember) {
       const repTot = parseInt(repeaterTotal?.value) || 0;
       const repFem = parseInt(repeaterFemale?.value) || 0;
-      calcAttendingTot = Math.max(0, f8Tot + repTot + trInTot - trOutTot);
-      calcAttendingFem = Math.max(0, f8Fem + repFem + trInFem - trOutFem);
+      calcAttendingTot = Math.max(0, f8Tot + repTot + trInTot - trOutTot - suspTot);
+      calcAttendingFem = Math.max(0, f8Fem + repFem + trInFem - trOutFem - suspFem);
+    } else if (isOctober) {
+      calcAttendingTot = Math.max(0, f7Tot + f8Tot + trInTot - trOutTot - suspTot);
+      calcAttendingFem = Math.max(0, f7Fem + f8Fem + trInFem - trOutFem - suspFem);
     } else {
-      // ບໍ່ແມ່ນເດືອນສິງຫາ: (ຊ່ອງ 7) + (ຊ່ອງ 8) + (ຊ່ອງ 10) - (ຊ່ອງ 11)
-      calcAttendingTot = Math.max(0, f7Tot + f8Tot + trInTot - trOutTot);
-      calcAttendingFem = Math.max(0, f7Fem + f8Fem + trInFem - trOutFem);
+      calcAttendingTot = Math.max(0, f7Tot + trInTot - trOutTot - calcDropTot - suspTot);
+      calcAttendingFem = Math.max(0, f7Fem + trInFem - trOutFem - calcDropFem - suspFem);
     }
 
     if (actualAttendingTotal)  actualAttendingTotal.value  = calcAttendingTot;
@@ -833,6 +929,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calculateActualAttending();
 
+    const trOutVal = parseInt(transferOutTotal?.value) || 0;
+    const dropVal  = parseInt(dropoutTotal?.value) || 0;
+    const suspVal  = parseInt(suspendedTotal?.value) || 0;
+
+    if (trOutVal > 0 && (!transferOutReason?.value || transferOutReason.value.trim() === '')) {
+      showToast("ກະລຸນາ ປ້ອນເຫດຜົນໃນການຍ້າຍອອກ!", "error");
+      return;
+    }
+    if (dropVal > 0 && (!dropoutReason?.value || dropoutReason.value.trim() === '')) {
+      showToast("ກະລຸນາ ປ້ອນເຫດຜົນໃນການປະລະການຮຽນ!", "error");
+      return;
+    }
+    if (suspVal > 0 && (!suspendedReason?.value || suspendedReason.value.trim() === '')) {
+      showToast("ກະລຸນາ ປ້ອນເຫດຜົນໃນການໂຈະການຮຽນ!", "error");
+      return;
+    }
+
     const recordId = recordIdInput?.value || ("REC-" + Date.now());
 
     const recordData = {
@@ -857,6 +970,9 @@ document.addEventListener('DOMContentLoaded', () => {
       dropout_total: parseInt(dropoutTotal?.value) || 0,
       dropout_female: parseInt(dropoutFemale?.value) || 0,
       dropout_reason: dropoutReason?.value || "",
+      suspended_total: parseInt(suspendedTotal?.value) || 0,
+      suspended_female: parseInt(suspendedFemale?.value) || 0,
+      suspended_reason: suspendedReason?.value || "",
       repeater_total: parseInt(repeaterTotal?.value) || 0,
       repeater_female: parseInt(repeaterFemale?.value) || 0,
       actual_attending_total: parseInt(actualAttendingTotal?.value) || 0,
@@ -931,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     activeRecs.forEach(r => {
-      const isAug = (r.entry_month_only || "").trim() === "ສິງຫາ" || (r.entry_month_only || "").trim() === "08";
+      const isAug = (r.entry_month_only || "").trim() === "ກັນຍາ" || (r.entry_month_only || "").trim() === "09";
 
       // 1. Registered: Fallback across all possible registered fields
       const regTot = isAug
@@ -953,10 +1069,6 @@ document.addEventListener('DOMContentLoaded', () => {
       totTrOut += parseInt(r.transfer_out_total)  || 0;
       femTrOut += parseInt(r.transfer_out_female) || 0;
 
-      // 4. Dropout
-      totDrop  += parseInt(r.dropout_total)       || 0;
-      femDrop  += parseInt(r.dropout_female)      || 0;
-
       // 5. Repeater
       totRep   += parseInt(r.repeater_total)       || 0;
       femRep   += parseInt(r.repeater_female)      || 0;
@@ -964,6 +1076,41 @@ document.addEventListener('DOMContentLoaded', () => {
       // 6. Actual Attending
       totStudents   += parseInt(r.actual_attending_total)  || 0;
       femStudents   += parseInt(r.actual_attending_female) || 0;
+    });
+
+    // 4. ✅ Dropout: ດຶງເອົາຈຳນວນນັກຮຽນປະລະຂອງ "ເດືອນສຸດທ້າຍ" (Latest Month) ຂອງແຕ່ລະໂຮງຮຽນ/ຂັ້ນຮຽນ
+    const laoMonthsOrder = [
+      "ກັນຍາ", "09", "ຕຸລາ", "10", "ພະຈິກ", "11", "ທັນວາ", "12",
+      "ມັງກອນ", "01", "ກຸມພາ", "02", "ມີນາ", "03", "ເມສາ", "04", "ພຶດສະພາ", "05"
+    ];
+    const getMonthRank = (mStr) => {
+      const m = (mStr || "").trim();
+      const idx = laoMonthsOrder.indexOf(m);
+      if (idx !== -1) return Math.floor(idx / 2);
+      const n = parseInt(m);
+      if (!isNaN(n)) {
+        if (n >= 8 && n <= 12) return n - 8;
+        if (n >= 1 && n <= 7) return n + 4;
+      }
+      return 0;
+    };
+
+    const latestDropoutMap = {};
+    activeRecs.forEach(r => {
+      const key = `${r.school}_${r.grade_level}_${r.entry_academic_year || ''}`;
+      const rank = getMonthRank(r.entry_month_only);
+      if (!latestDropoutMap[key] || rank >= latestDropoutMap[key].rank) {
+        latestDropoutMap[key] = {
+          rank: rank,
+          dropout_total: parseInt(r.dropout_total) || 0,
+          dropout_female: parseInt(r.dropout_female) || 0
+        };
+      }
+    });
+
+    Object.values(latestDropoutMap).forEach(item => {
+      totDrop += item.dropout_total;
+      femDrop += item.dropout_female;
     });
 
     const pct = (f, t) => t > 0 ? ((f / t) * 100).toFixed(2) : '0.00';
@@ -984,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setEl('statTransferOutFemale',  femTrOut.toLocaleString());
     setEl('statTransferOutPercent', pct(femTrOut, totTrOut));
 
-    // Card 4: ປະລະ
+    // Card 4: ປະລະ (ເອົາເດືອນສຸດທ້າຍ)
     setEl('statTotalDropout',   totDrop.toLocaleString());
     setEl('statDropoutFemale',  femDrop.toLocaleString());
     setEl('statDropoutPercent', pct(femDrop, totDrop));
@@ -1031,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const isAugustRec = r => (r.entry_month_only || "").trim() === "ສິງຫາ" || (r.entry_month_only || "").trim() === "08";
+    const isAugustRec = r => (r.entry_month_only || "").trim() === "ກັນຍາ" || (r.entry_month_only || "").trim() === "09";
 
     filtered.forEach((r, idx) => {
       // ຄຳນວນ "ນັກຮຽນຕົ້ນ" ຕາມເດືອນ
@@ -1054,7 +1201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td title="ຍ້າຍເຂົ້າ">${r.transfer_in_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.transfer_in_female || 0}</small></td>
         <td title="ຍ້າຍອອກ">${r.transfer_out_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.transfer_out_female || 0}</small></td>
         <td title="ປະລະ">${r.dropout_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.dropout_female || 0}</small></td>
-        <td title="ຄ້າງຫ້ອງ">${isAugustRec(r) ? (r.repeater_total || 0) : '-'}<br>${isAugustRec(r) ? `<small style="color:var(--accent-pink);">ຍິງ: ${r.repeater_female || 0}</small>` : ''}</td>
+        <td title="ໂຈະ">${r.suspended_total || 0}<br><small style="color:var(--accent-pink);">ຍິງ: ${r.suspended_female || 0}</small></td>
+        <td title="ຄ້າງຫ້ອງ">${isAugustRec(r) ? (r.repeater_total || 0) : ''}<br>${isAugustRec(r) ? `<small style="color:var(--accent-pink);">ຍິງ: ${r.repeater_female || 0}</small>` : ''}</td>
         <td><strong style="color:var(--accent-success);">${(r.actual_attending_total || 0).toLocaleString()}</strong><br><small style="color:var(--accent-pink);">ຍິງ: ${r.actual_attending_female || 0}</small></td>
         <td><small>${r.created_at || ''}</small></td>
       `;
@@ -1450,18 +1598,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const monthMap = {
-      "01": 0, "1": 0, "ມັງກອນ": 0, "january": 0,
-      "02": 1, "2": 1, "ກຸມພາ": 1, "february": 1,
-      "03": 2, "3": 2, "ມີນາ": 2, "march": 2,
-      "04": 3, "4": 3, "ເມສາ": 3, "april": 3,
-      "05": 4, "5": 4, "ພຶດສະພາ": 4, "may": 4,
-      "06": 5, "6": 5, "ມິຖຸນາ": 5, "june": 5,
-      "07": 6, "7": 6, "ກໍລະກົດ": 6, "july": 6,
-      "08": 7, "8": 7, "ສິງຫາ": 7, "august": 7,
-      "09": 8, "9": 8, "ກັນຍາ": 8, "september": 8,
-      "10": 9, "ຕຸລາ": 9, "october": 9,
-      "11": 10, "ພະຈິກ": 10, "november": 10,
-      "12": 11, "ທັນວາ": 11, "december": 11
+      "09": 0, "9": 0, "ກັນຍາ": 0, "september": 0,
+      "10": 1, "ຕຸລາ": 1, "october": 1,
+      "11": 2, "ພະຈິກ": 2, "november": 2,
+      "12": 3, "ທັນວາ": 3, "december": 3,
+      "01": 4, "1": 4, "ມັງກອນ": 4, "january": 4,
+      "02": 5, "2": 5, "ກຸມພາ": 5, "february": 5,
+      "03": 6, "3": 6, "ມີນາ": 6, "march": 6,
+      "04": 7, "4": 7, "ເມສາ": 7, "april": 7,
+      "05": 8, "5": 8, "ພຶດສະພາ": 8, "may": 8
     };
 
     const safeDestroy = (canvas, key) => {
@@ -1480,14 +1625,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const monthlyCanvas = document.getElementById('monthlyTrendChart');
       if (monthlyCanvas) {
         safeDestroy(monthlyCanvas, 'monthly');
-        const months = ["ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ", "ມິຖຸນາ", "ກໍລະກົດ", "ສິງຫາ", "ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ"];
-        const monthlyTotals = new Array(12).fill(0);
-        const monthlyFemales = new Array(12).fill(0);
+        const months = ["ກັນຍາ", "ຕຸລາ", "ພະຈິກ", "ທັນວາ", "ມັງກອນ", "ກຸມພາ", "ມີນາ", "ເມສາ", "ພຶດສະພາ"];
+        const monthlyTotals = new Array(9).fill(0);
+        const monthlyFemales = new Array(9).fill(0);
 
         records.forEach(r => {
           const rawM = (r.entry_month_only || "").trim().toLowerCase();
           const mIdx = monthMap[rawM] !== undefined ? monthMap[rawM] : -1;
-          if (mIdx >= 0 && mIdx < 12) {
+          if (mIdx >= 0 && mIdx < 9) {
             monthlyTotals[mIdx] += parseInt(r.actual_attending_total) || 0;
             monthlyFemales[mIdx] += parseInt(r.actual_attending_female) || 0;
           }
