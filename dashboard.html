@@ -36,9 +36,9 @@
         <div>
           <h1 class="brand-title">Dashboard ສະຫຼຸບສະຖິຕິຂໍ້ມູນນັກຮຽນ</h1>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:3px;">
-            <p class="brand-subtitle" style="margin:0;">ແຂວງອຸດົມໄຊ (Analytics, Trends & Comprehensive Reports)</p>
+            <p class="brand-subtitle" style="margin:0;">ແຂວງອຸດົມໄຊ</p>
             <span id="liveSyncStatusBadge" class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; padding: 2px 10px; transition: transform 0.3s ease;">
-              <i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync)
+              <i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync 15 ນາທີ)
             </span>
           </div>
         </div>
@@ -62,6 +62,22 @@
         </button>
       </div>
     </header>
+
+    
+    <!-- DYNAMIC DASHBOARD MONTH SELECTOR BAR -->
+    <div class="card-section" style="margin-bottom: 20px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: var(--bg-card); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-calendar-days" style="font-size: 1.3rem; color: var(--accent-primary);"></i>
+        <span style="font-weight: 600; font-size: 1rem; color: var(--text-main);">
+          ເລືອກເດືອນເພື່ອເບິ່ງລາຍງານ:
+        </span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <select id="topDashboardMonthSelect" class="select-control" style="min-width: 220px; font-weight: 700; font-size: 0.95rem; border-color: var(--accent-primary);">
+          <option value="">ທຸກໆເດືອນ (ທຸກເດືອນໃນສົກຮຽນ)</option>
+        </select>
+      </div>
+    </div>
 
     <!-- TOP COMPREHENSIVE KPI METRIC CARDS (6 Key Educational Metrics with Exact Wording & Percentage Breakdown) -->
     <section class="dashboard-grid">
@@ -126,6 +142,19 @@
         </div>
       </div>
 
+      
+      <!-- Card 7: ນັກຮຽນໂຈະການຮຽນ -->
+      <div class="stat-card stat-suspended">
+        <div class="stat-icon-bg" style="background: rgba(168, 85, 247, 0.18); color: #a855f7;">
+          <i class="fa-solid fa-user-clock"></i>
+        </div>
+        <div class="stat-details">
+          <span class="stat-value" id="statSuspendedTotal">0</span>
+          <span class="stat-label">ນັກຮຽນໂຈະການຮຽນ</span>
+          <span class="stat-subtext" style="color: #a855f7;"><i class="fa-solid fa-venus"></i> ຍິງ: <span id="statSuspendedFemale">0</span> ຄົນ (<span id="statSuspendedPercent">0</span>%)</span>
+        </div>
+      </div>
+
       <!-- Card 6: ມີໜ້າຮຽນຕົວຈິງທັງໝົດ -->
       <div class="stat-card stat-schools">
         <div class="stat-icon-bg">
@@ -152,7 +181,7 @@
           <div class="stat-details">
             <span class="stat-value" id="statTotalSchoolsCount">567</span>
             <span class="stat-label">ໂຮງຮຽນທັງໝົດ</span>
-            <span class="stat-subtext" style="color: var(--accent-info);">ແຂວງອຸດົມໄຊ (7 ເມືອງ)</span>
+            <span class="stat-subtext" style="color: var(--accent-info);">7 ເມືອງ</span>
           </div>
         </div>
 
@@ -264,7 +293,7 @@
       <section class="card-section">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fa-solid fa-chart-line"></i> ສະຫຼຸບ ແລະ ວິເຄາະສະຖິຕິ (Analytics & Trends Dashboard)
+            <i class="fa-solid fa-chart-line"></i> ສະຫຼຸບ ແລະ ວິເຄາະສະຖິຕິ
           </h2>
         </div>
         
@@ -274,7 +303,7 @@
           <div class="chart-card" style="grid-column: span 2;">
             <h3 class="chart-title">
               <i class="fa-solid fa-chart-line" style="color: var(--accent-primary);"></i> 
-              ກຣາຟສະແດງແນວໂນ້ມ ຈຳນວນນັກຮຽນເພີ່ມຂຶ້ນ ຫຼື ຫຼຸດລົງ ໃນແຕ່ລະເດືອນ (Monthly Trend)
+              ກຣາຟສະແດງແນວໂນ້ມ ຈຳນວນນັກຮຽນເພີ່ມຂຶ້ນ ຫຼື ຫຼຸດລົງ ໃນແຕ່ລະເດືອນ
             </h3>
             <canvas id="monthlyTrendChart" height="110"></canvas>
           </div>
@@ -314,17 +343,17 @@
         <div class="section-header" style="margin-bottom: 16px;">
           <h2 class="section-title">
             <i class="fa-solid fa-list-check" style="color: var(--accent-warning);"></i>
-            ສັງລວມ ສາເຫດການຍ້າຍອອກ ແລະ ສາເຫດການປະລະການຮຽນ (Reasons Analysis)
+            ສັງລວມ ສາເຫດການຍ້າຍອອກ, ປະລະການຮຽນ ແລະ ໂຈະການຮຽນ
           </h2>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
           
           <!-- Transfer Out Reasons Card -->
           <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); padding: 16px;">
             <h3 style="font-size: 0.98rem; font-weight: 600; color: var(--accent-warning); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-right-from-bracket"></i>
-              ສັງລວມ ສາເຫດການຍ້າຍອອກ (Transfer Out Reasons)
+              ສັງລວມ ສາເຫດການຍ້າຍອອກ
             </h3>
             <div id="transferOutReasonsList">
               <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 15px;">ກຳລັງໂຫຼດ...</p>
@@ -335,7 +364,7 @@
           <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 16px;">
             <h3 style="font-size: 0.98rem; font-weight: 600; color: var(--accent-danger); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-user-xmark"></i>
-              ສັງລວມ ສາເຫດການປະລະການຮຽນ (Dropout Reasons)
+              ສັງລວມ ສາເຫດການປະລະການຮຽນ
             </h3>
             <div id="dropoutReasonsList">
               <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 15px;">ກຳລັງໂຫຼດ...</p>
@@ -352,7 +381,7 @@
         <div class="section-header" style="margin-bottom: 16px;">
           <h2 class="section-title">
             <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--accent-primary);"></i>
-            ການວິເຄາະສະຖິຕິຢ່າງລະອຽດ (Advanced Statistical Analysis)
+            ການວິເຄາະສະຖິຕິຢ່າງລະອຽດ
           </h2>
           <span class="badge-tag" style="background: rgba(99,102,241,0.15); color: var(--accent-primary);">
             <i class="fa-solid fa-robot" style="font-size:0.75rem;"></i> Auto Computed
@@ -365,7 +394,7 @@
           <div class="chart-card">
             <h3 class="chart-title">
               <i class="fa-solid fa-venus-mars" style="color: var(--accent-pink);"></i>
-              ສັດສ່ວນ ຊາຍ-ຍິງ ແຕ່ລະເມືອງ (Stacked Gender)
+              ສັດສ່ວນ ຊາຍ-ຍິງ ແຕ່ລະເມືອງ
             </h3>
             <canvas id="stackedGenderChart"></canvas>
           </div>
@@ -374,7 +403,7 @@
           <div class="chart-card">
             <h3 class="chart-title">
               <i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="color: var(--accent-danger);"></i>
-              ອັດຕາການປະລະ (%) ແຕ່ລະເມືອງ (Dropout Rate)
+              ອັດຕາການປະລະ (%) ແຕ່ລະເມືອງ
             </h3>
             <canvas id="dropoutRateChart"></canvas>
           </div>
@@ -386,7 +415,7 @@
           <div class="chart-card">
             <h3 class="chart-title">
               <i class="fa-solid fa-chart-area" style="color: var(--accent-purple);"></i>
-              ເຣດາ ປຽບທຽບ KPI ທຸກ 7 ເມືອງ (Radar KPI)
+              ເຣດາ ປຽບທຽບ KPI ທຸກ 7 ເມືອງ
             </h3>
             <canvas id="radarKpiChart"></canvas>
           </div>
@@ -428,7 +457,7 @@
       <section class="card-section">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fa-solid fa-table-list"></i> ລາຍການຂໍ້ມູນທີ່ບັນທຶກແລ້ວ (ແຂວງອຸດົມໄຊ)
+            <i class="fa-solid fa-table-list"></i> ລາຍການຂໍ້ມູນທີ່ບັນທຶກແລ້ວ
           </h2>
           <span class="badge-tag" id="tableRecordCount">0 ລາຍການ</span>
         </div>
@@ -517,6 +546,21 @@
           </table>
         </div>
       </section>
+
+    
+    <!-- OFFICIAL PRINT SIGNATURE FOOTER (Visible only when printing) -->
+    <div class="print-official-footer" style="display: none;">
+      <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 15px; font-size: 0.9rem;">
+        <div style="text-align: center; width: 45%;">
+          <strong>ຜູ້ສະຫຼຸບລາຍງານ</strong><br><br><br><br>
+          ......................................................
+        </div>
+        <div style="text-align: center; width: 45%;">
+          <strong>ຫົວໜ້າພະແນກສຶກສາທິການ ແລະ ກິລາ ແຂວງ</strong><br><br><br><br>
+          ......................................................
+        </div>
+      </div>
+    </div>
 
     </main>
   </div>

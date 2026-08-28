@@ -196,6 +196,7 @@ body {
 .stat-card.stat-transfer-in::before { background: var(--accent-success); }
 .stat-card.stat-transfer-out::before { background: var(--accent-warning); }
 .stat-card.stat-repeater::before { background: var(--accent-purple); }
+.stat-card.stat-suspended::before { background: #a855f7; }
 
 .stat-card:hover {
   transform: translateY(-2px);
@@ -222,6 +223,7 @@ body {
 .stat-transfer-in .stat-icon-bg { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
 .stat-transfer-out .stat-icon-bg { background: rgba(245, 158, 11, 0.15); color: var(--accent-warning); }
 .stat-repeater .stat-icon-bg { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+.stat-suspended .stat-icon-bg { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
 
 .stat-details {
   display: flex;
@@ -783,3 +785,48 @@ body {
   display: block;
 }
 
+
+
+/* ===================================================
+   PRINT REPORT STYLES (@media print)
+   =================================================== */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt !important;
+  }
+  .header-controls, #themeToggleBtn, #syncGasBtn, #exportExcelBtn, #printReportBtn,
+  .search-box, .filter-group-advanced, #resetFiltersBtn, .btn, .top-bar-left,
+  .dashboard-month-selector-bar, .modal-overlay, #toastContainer {
+    display: none !important;
+  }
+  .print-official-header, .print-official-footer {
+    display: block !important;
+  }
+  .card-section, .stat-card, .chart-card {
+    background: #fff !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    page-break-inside: avoid;
+    backdrop-filter: none !important;
+  }
+  .stat-value, .stat-label, .stat-subtext, h1, h2, h3, h4, th, td, p, span {
+    color: #000 !important;
+  }
+  .data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  .data-table th, .data-table td {
+    border: 1px solid #999 !important;
+    padding: 6px 8px !important;
+    font-size: 9pt !important;
+    color: #000 !important;
+  }
+  .data-table th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+}

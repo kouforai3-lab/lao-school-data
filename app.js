@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fieldTransferInLabel = document.getElementById('fieldTransferInLabel');
   const fieldTransferOutLabel = document.getElementById('fieldTransferOutLabel');
   const fieldDropoutLabel = document.getElementById('fieldDropoutLabel');
+  const fieldSuspendedLabel = document.getElementById('fieldSuspendedLabel');
   const fieldActualLabel = document.getElementById('fieldActualLabel');
   const calcFormulaText = document.getElementById('calcFormulaText');
 
@@ -251,7 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
       if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7 - 8)</small> <span class="req">*</span>';
-      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (fieldSuspendedLabel) fieldSuspendedLabel.innerHTML = '13. ຈຳນວນນັກຮຽນທີ່ໂຈະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 14. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
       if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11]) - (ໂຈະການຮຽນ)';
 
       if (repeaterContainer) repeaterContainer.style.display = 'block';
@@ -283,8 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
       if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: ປະລະເດືອນ 9 - 8)</small> <span class="req">*</span>';
-      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = (ປະລະເດືອນ 9 - 8) | ໜ້າຮຽນຕົວຈິງ [13] = 7 + 8 + 10 - 11 - ໂຈະ';
+      if (fieldSuspendedLabel) fieldSuspendedLabel.innerHTML = '13. ຈຳນວນນັກຮຽນທີ່ໂຈະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 14. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = (ປະລະເດືອນ 9 - 8) | ໜ້າຮຽນຕົວຈິງ [14] = 7 + 8 + 10 - 11 - ໂຈະ';
 
       if (repeaterContainer) repeaterContainer.style.display = 'none';
       if (repeaterTotal) repeaterTotal.value = '';
@@ -311,8 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
       if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <span class="req">*</span>';
-      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 13. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ທ້າຍເດືອນ [7] + ຍ້າຍເຂົ້າ [10] - ຍ້າຍອອກ [11] - ປະລະ [12] - ໂຈະການຮຽນ';
+      if (fieldSuspendedLabel) fieldSuspendedLabel.innerHTML = '13. ຈຳນວນນັກຮຽນທີ່ໂຈະການຮຽນ <span class="req">*</span>';
+      if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 14. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ທ້າຍເດືອນ [7] + ຍ້າຍເຂົ້າ [10] - ຍ້າຍອອກ [11] - ປະລະ [12] - ໂຈະການຮຽນ [13]';
 
       if (repeaterContainer) repeaterContainer.style.display = 'none';
       if (repeaterTotal) repeaterTotal.value = '';
@@ -634,15 +638,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    if (filterMonth) {
-      filterMonth.innerHTML = '<option value="">ທຸກໆເດືອນ</option>';
-      months.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.name;
-        opt.textContent = m.name;
-        filterMonth.appendChild(opt);
-      });
-    }
+    const monthSelects = [filterMonth, document.getElementById('topDashboardMonthSelect')];
+    monthSelects.forEach(sel => {
+      if (sel) {
+        const curVal = sel.value;
+        sel.innerHTML = '<option value="">ທຸກໆເດືອນ (ທຸກເດືອນໃນສົກຮຽນ)</option>';
+        months.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.name;
+          opt.textContent = `ເດືອນ ${m.name}`;
+          if (m.name === curVal || m.value === curVal) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    });
   }
 
   function populateAcademicYearDropdowns() {
@@ -795,14 +804,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dashboard Filters
     if (searchInput) searchInput.addEventListener('input', renderTable);
-    if (filterDistrict) filterDistrict.addEventListener('change', renderTable);
-    if (filterLevel) filterLevel.addEventListener('change', renderTable);
-    if (filterGrade) filterGrade.addEventListener('change', renderTable);
-    if (filterMonth) filterMonth.addEventListener('change', renderTable);
-    if (filterAcademicYear) filterAcademicYear.addEventListener('change', renderTable);
+    const topMthSelect = document.getElementById('topDashboardMonthSelect');
+    if (filterDistrict) filterDistrict.addEventListener('change', renderApp);
+    if (filterLevel) filterLevel.addEventListener('change', renderApp);
+    if (filterGrade) filterGrade.addEventListener('change', renderApp);
+    if (filterMonth) {
+      filterMonth.addEventListener('change', (e) => {
+        if (topMthSelect) topMthSelect.value = e.target.value;
+        renderApp();
+      });
+    }
+    if (topMthSelect) {
+      topMthSelect.addEventListener('change', (e) => {
+        if (filterMonth) filterMonth.value = e.target.value;
+        renderApp();
+      });
+    }
+    if (filterAcademicYear) filterAcademicYear.addEventListener('change', renderApp);
+    if (searchInput) searchInput.addEventListener('input', renderApp);
     if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetSearchFilters);
     if (unsubmittedFilterDistrict) unsubmittedFilterDistrict.addEventListener('change', renderSubmissionStats);
     if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
+
+  // Print Report Listener
+  const printReportBtn = document.getElementById('printReportBtn');
+  if (printReportBtn) {
+    printReportBtn.addEventListener('click', () => {
+      const activeMth = document.getElementById('topDashboardMonthSelect')?.value || filterMonth?.value || "ທຸກໆເດືອນ";
+      const activeDist = filterDistrict?.value || "ທຸກໆເມືອງ";
+      const activeYear = filterAcademicYear?.value || "ທຸກໆສົກຮຽນ";
+      const today = new Date().toLocaleDateString('lo-LA');
+
+      const printContextEl = document.getElementById('printFilterContext');
+      if (printContextEl) {
+        printContextEl.textContent = `ປະຈຳ: ${activeMth} | ເມືອງ: ${activeDist} | ສົກຮຽນ: ${activeYear} | ວັນທີພິມ: ${today}`;
+      }
+
+      window.print();
+    });
+  }
+
   }
 
   // Automatic Formula Calculation
@@ -1021,6 +1062,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let totRegistered = 0, femRegistered = 0;
     let totStudents   = 0, femStudents   = 0;
     let totDrop = 0, femDrop = 0;
+    let totSusp = 0, femSusp = 0;
     let totTrOut = 0, femTrOut = 0;
     let totTrIn  = 0, femTrIn  = 0;
     let totRep   = 0, femRep   = 0;
@@ -1030,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fDist = filterDistrict?.value || "";
     const fLvl  = filterLevel?.value || "";
     const fGrd  = filterGrade?.value || "";
-    const fMth  = filterMonth?.value || "";
+    const fMth  = filterMonth?.value || document.getElementById('topDashboardMonthSelect')?.value || "";
     const fYr   = filterAcademicYear?.value || "";
 
     const activeRecs = records.filter(r => {
@@ -1046,39 +1088,65 @@ document.addEventListener('DOMContentLoaded', () => {
       return true;
     });
 
+    // 1. Movement metrics (Transfer In, Transfer Out, Repeater) summed across active filtered records
     activeRecs.forEach(r => {
-      const isAug = (r.entry_month_only || "").trim() === "ກັນຍາ" || (r.entry_month_only || "").trim() === "09";
-
-      // 1. Registered: Fallback across all possible registered fields
-      const regTot = isAug
-        ? (parseInt(r.august_prev_year_total) || parseInt(r.passed_registered_total) || parseInt(r.registered_total) || 0)
-        : (parseInt(r.passed_registered_total) || parseInt(r.august_prev_year_total) || parseInt(r.registered_total) || 0);
-
-      const regFem = isAug
-        ? (parseInt(r.august_prev_year_female) || parseInt(r.passed_registered_female) || parseInt(r.registered_female) || 0)
-        : (parseInt(r.passed_registered_female) || parseInt(r.august_prev_year_female) || parseInt(r.registered_female) || 0);
-
-      totRegistered += regTot;
-      femRegistered += regFem;
-
-      // 2. Transfer In
       totTrIn  += parseInt(r.transfer_in_total)  || 0;
       femTrIn  += parseInt(r.transfer_in_female) || 0;
 
-      // 3. Transfer Out
       totTrOut += parseInt(r.transfer_out_total)  || 0;
       femTrOut += parseInt(r.transfer_out_female) || 0;
 
-      // 5. Repeater
       totRep   += parseInt(r.repeater_total)       || 0;
       femRep   += parseInt(r.repeater_female)      || 0;
-
-      // 6. Actual Attending
-      totStudents   += parseInt(r.actual_attending_total)  || 0;
-      femStudents   += parseInt(r.actual_attending_female) || 0;
     });
 
-    // 4. ✅ Dropout: ດຶງເອົາຈຳນວນນັກຮຽນປະລະຂອງ "ເດືອນສຸດທ້າຍ" (Latest Month) ຂອງແຕ່ລະໂຮງຮຽນ/ຂັ້ນຮຽນ
+    // 2. ⭐ Registered Students (Method 3: Initial Registration Baseline from Month 9/10)
+    const allMatchingRecs = records.filter(r => {
+      if (fDist && r.district !== fDist) return false;
+      if (fLvl  && r.education_level !== fLvl) return false;
+      if (fGrd  && r.grade_level !== fGrd) return false;
+      if (fYr   && r.entry_academic_year !== fYr) return false;
+      if (query) {
+        const text = `${r.school} ${r.school_code} ${r.collector_name} ${r.district}`.toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+
+    const registeredBaselineMap = {};
+    allMatchingRecs.forEach(r => {
+      const key = `${r.school}_${r.grade_level}_${r.entry_academic_year || ''}`;
+      const m = (r.entry_month_only || "").trim();
+      const isSep = m === "ກັນຍາ" || m === "09";
+      const isOct = m === "ຕຸລາ" || m === "10";
+
+      const regTot = isSep
+        ? (parseInt(r.august_prev_year_total) || parseInt(r.passed_registered_total) || parseInt(r.registered_total) || 0)
+        : (parseInt(r.passed_registered_total) || parseInt(r.august_prev_year_total) || parseInt(r.registered_total) || 0);
+
+      const regFem = isSep
+        ? (parseInt(r.august_prev_year_female) || parseInt(r.passed_registered_female) || parseInt(r.registered_female) || 0)
+        : (parseInt(r.passed_registered_female) || parseInt(r.august_prev_year_female) || parseInt(r.registered_female) || 0);
+
+      let priority = 1;
+      if (isSep) priority = 3;
+      else if (isOct) priority = 2;
+
+      if (!registeredBaselineMap[key] || priority > registeredBaselineMap[key].priority) {
+        registeredBaselineMap[key] = {
+          priority: priority,
+          reg_total: regTot,
+          reg_female: regFem
+        };
+      }
+    });
+
+    Object.values(registeredBaselineMap).forEach(item => {
+      totRegistered += item.reg_total;
+      femRegistered += item.reg_female;
+    });
+
+    // 3. Status metrics (Dropout, Suspended, Actual Attending) from Latest Month per school/grade
     const laoMonthsOrder = [
       "ກັນຍາ", "09", "ຕຸລາ", "10", "ພະຈິກ", "11", "ທັນວາ", "12",
       "ມັງກອນ", "01", "ກຸມພາ", "02", "ມີນາ", "03", "ເມສາ", "04", "ພຶດສະພາ", "05"
@@ -1095,22 +1163,32 @@ document.addEventListener('DOMContentLoaded', () => {
       return 0;
     };
 
-    const latestDropoutMap = {};
+    const latestStatusMap = {};
     activeRecs.forEach(r => {
       const key = `${r.school}_${r.grade_level}_${r.entry_academic_year || ''}`;
       const rank = getMonthRank(r.entry_month_only);
-      if (!latestDropoutMap[key] || rank >= latestDropoutMap[key].rank) {
-        latestDropoutMap[key] = {
+      if (!latestStatusMap[key] || rank >= latestStatusMap[key].rank) {
+        latestStatusMap[key] = {
           rank: rank,
           dropout_total: parseInt(r.dropout_total) || 0,
-          dropout_female: parseInt(r.dropout_female) || 0
+          dropout_female: parseInt(r.dropout_female) || 0,
+          suspended_total: parseInt(r.suspended_total) || 0,
+          suspended_female: parseInt(r.suspended_female) || 0,
+          actual_attending_total: parseInt(r.actual_attending_total) || 0,
+          actual_attending_female: parseInt(r.actual_attending_female) || 0
         };
       }
     });
 
-    Object.values(latestDropoutMap).forEach(item => {
+    Object.values(latestStatusMap).forEach(item => {
       totDrop += item.dropout_total;
       femDrop += item.dropout_female;
+
+      totSusp += item.suspended_total;
+      femSusp += item.suspended_female;
+
+      totStudents += item.actual_attending_total;
+      femStudents += item.actual_attending_female;
     });
 
     const pct = (f, t) => t > 0 ? ((f / t) * 100).toFixed(2) : '0.00';
@@ -1131,7 +1209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setEl('statTransferOutFemale',  femTrOut.toLocaleString());
     setEl('statTransferOutPercent', pct(femTrOut, totTrOut));
 
-    // Card 4: ປະລະ (ເອົາເດືອນສຸດທ້າຍ)
+    // Card 4: ປະລະ
     setEl('statTotalDropout',   totDrop.toLocaleString());
     setEl('statDropoutFemale',  femDrop.toLocaleString());
     setEl('statDropoutPercent', pct(femDrop, totDrop));
@@ -1145,6 +1223,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setEl('statTotalStudents',  totStudents.toLocaleString());
     setEl('statFemaleStudents', femStudents.toLocaleString());
     setEl('statFemalePercent',  pct(femStudents, totStudents));
+
+    // Card 7: ໂຈະການຮຽນ
+    setEl('statSuspendedTotal',   totSusp.toLocaleString());
+    setEl('statSuspendedFemale',  femSusp.toLocaleString());
+    setEl('statSuspendedPercent', pct(femSusp, totSusp));
   }
 
   function renderTable() {
@@ -1504,20 +1587,33 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderReasonSummaries() {
     const trOutContainer = document.getElementById('transferOutReasonsList');
     const dropContainer  = document.getElementById('dropoutReasonsList');
+    const suspContainer  = document.getElementById('suspendedReasonsList');
+    if (!trOutContainer && !dropContainer && !suspContainer) return;
 
-    if (!trOutContainer && !dropContainer) return;
+    const fDist = filterDistrict?.value || "";
+    const fLvl  = filterLevel?.value || "";
+    const fGrd  = filterGrade?.value || "";
+    const fMth  = filterMonth?.value || document.getElementById('topDashboardMonthSelect')?.value || "";
+    const fYr   = filterAcademicYear?.value || "";
+
+    const activeRecs = records.filter(r => {
+      if (fDist && r.district !== fDist) return false;
+      if (fLvl  && r.education_level !== fLvl) return false;
+      if (fGrd  && r.grade_level !== fGrd) return false;
+      if (fMth  && r.entry_month_only !== fMth) return false;
+      if (fYr   && r.entry_academic_year !== fYr) return false;
+      return true;
+    });
 
     // 1. Aggregate Transfer Out Reasons
     const trOutMap = {};
     let totalTrOutCount = 0;
-
-    records.forEach(r => {
-      const reason = (r.transfer_out_reason || "").trim() || "ບໍ່ໄດ້ລະບຸສາເຫດ";
+    activeRecs.forEach(r => {
+      const reason = (r.transfer_out_reason || "").trim();
       const count  = parseInt(r.transfer_out_total) || 0;
-      if (count > 0 || (r.transfer_out_reason && r.transfer_out_reason.trim())) {
-        const cnt = count > 0 ? count : 1;
-        trOutMap[reason] = (trOutMap[reason] || 0) + cnt;
-        totalTrOutCount += cnt;
+      if (count > 0 && reason && reason !== '-') {
+        trOutMap[reason] = (trOutMap[reason] || 0) + count;
+        totalTrOutCount += count;
       }
     });
 
@@ -1546,14 +1642,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Aggregate Dropout Reasons
     const dropMap = {};
     let totalDropCount = 0;
-
-    records.forEach(r => {
-      const reason = (r.dropout_reason || "").trim() || "ບໍ່ໄດ້ລະບຸສາເຫດ";
+    activeRecs.forEach(r => {
+      const reason = (r.dropout_reason || "").trim();
       const count  = parseInt(r.dropout_total) || 0;
-      if (count > 0 || (r.dropout_reason && r.dropout_reason.trim())) {
-        const cnt = count > 0 ? count : 1;
-        dropMap[reason] = (dropMap[reason] || 0) + cnt;
-        totalDropCount += cnt;
+      if (count > 0 && reason && reason !== '-') {
+        dropMap[reason] = (dropMap[reason] || 0) + count;
+        totalDropCount += count;
       }
     });
 
@@ -1572,6 +1666,40 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div style="background:var(--border-color); border-radius:4px; height:8px; overflow:hidden;">
                 <div style="width:${parseFloat(pct)}%; height:100%; background:var(--accent-danger); border-radius:4px; transition:width 0.4s ease;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 3. Aggregate Suspended Reasons
+    const suspMap = {};
+    let totalSuspCount = 0;
+    activeRecs.forEach(r => {
+      const reason = (r.suspended_reason || "").trim();
+      const count  = parseInt(r.suspended_total) || 0;
+      if (count > 0 && reason && reason !== '-') {
+        suspMap[reason] = (suspMap[reason] || 0) + count;
+        totalSuspCount += count;
+      }
+    });
+
+    if (suspContainer) {
+      const entries = Object.entries(suspMap).sort((a, b) => b[1] - a[1]);
+      if (entries.length === 0) {
+        suspContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:15px; font-size:0.85rem;">ບໍ່ມີຂໍ້ມູນການໂຈະ</p>';
+      } else {
+        suspContainer.innerHTML = entries.map(([reason, cnt]) => {
+          const pct = totalSuspCount > 0 ? ((cnt / totalSuspCount) * 100).toFixed(2) : '0.00';
+          return `
+            <div style="margin-bottom: 12px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                <span><i class="fa-solid fa-circle-dot" style="color:#a855f7; font-size:0.75rem;"></i> <strong>${reason}</strong></span>
+                <span style="color:#a855f7; font-weight:600;">${cnt} ຄົນ (${pct}%)</span>
+              </div>
+              <div style="background:var(--border-color); border-radius:4px; height:8px; overflow:hidden;">
+                <div style="width:${parseFloat(pct)}%; height:100%; background:#a855f7; border-radius:4px; transition:width 0.4s ease;"></div>
               </div>
             </div>
           `;
@@ -2173,7 +2301,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!silent) showToast("ບໍ່ສາມາດເຊື່ອມຕໍ່ Google Sheet ໄດ້: " + err.message, "error");
     } finally {
       if (badge) {
-        badge.innerHTML = `<i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync)`;
+        badge.innerHTML = `<i class="fa-solid fa-rotate fa-spin" style="animation-duration: 4s;"></i> ປັບຂໍ້ມູນອັດຕະໂນມັດ (Live Auto-Sync 15 ນາທີ)`;
         badge.style.color = 'var(--accent-success)';
       }
     }
@@ -2252,6 +2380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 3. Periodic Background Auto-Sync (Every 10 seconds - Dashboard only)
-    setInterval(triggerLiveAutoSync, 10000);
+    // Periodic Background Auto-Sync (Every 15 minutes - Dashboard only)
+    setInterval(triggerLiveAutoSync, 15 * 60 * 1000);
   }
 });
