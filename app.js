@@ -251,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (repeaterLabel) repeaterLabel.innerHTML = '9. ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ <span class="req">*</span>';
       if (fieldTransferInLabel) fieldTransferInLabel.innerHTML = '10. ຈຳນວນນັກຮຽນຍ້າຍເຂົ້າມາຮຽນໃໝ່ <span class="req">*</span>';
       if (fieldTransferOutLabel) fieldTransferOutLabel.innerHTML = '11. ຈຳນວນນັກຮຽນຍ້າຍອອກ <span class="req">*</span>';
-      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7 - 8)</small> <span class="req">*</span>';
+      if (fieldDropoutLabel) fieldDropoutLabel.innerHTML = '12. ຈຳນວນນັກຮຽນທີ່ປະລະການຮຽນ <small style="color:var(--accent-info); font-weight:normal;">(Auto: 7 - 8 - 11)</small> <span class="req">*</span>';
       if (fieldSuspendedLabel) fieldSuspendedLabel.innerHTML = '13. ຈຳນວນນັກຮຽນທີ່ໂຈະການຮຽນ <span class="req">*</span>';
       if (fieldActualLabel) fieldActualLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 14. ຈຳນວນນັກຮຽນທັງໝົດທີ່ມີໜ້າຮຽນຕົວຈິງ (Auto Calculated)';
-      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: (ມາລົງທະບຽນ [8]) + (ຄ້າງຫ້ອງ [9]) + (ຍ້າຍເຂົ້າ [10]) - (ຍ້າຍອອກ [11]) - (ໂຈະການຮຽນ)';
+      if (calcFormulaText) calcFormulaText.innerHTML = '<i class="fa-solid fa-info-circle"></i> ສູດຄິດໄລ່: ປະລະ [12] = 7 - 8 - 11 | ໜ້າຮຽນຕົວຈິງ [14] = 8 (ມາລົງທະບຽນ) + 9 (ຄ້າງຫ້ອງ) + 10 (ຍ້າຍເຂົ້າ) - 13 (ໂຈະ)';
 
       if (repeaterContainer) repeaterContainer.style.display = 'block';
 
@@ -338,6 +338,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
     validateAugustCounts();
     calculateActualAttending();
+  }
+
+  
+  // Validate Month 9 Transfer Out (Field 11) ≤ (Field 7 - Field 8)
+  
+  // Validate Month 9 Repeater (Field 9) ≤ (Field 7 - Field 8)
+  function validateSeptemberRepeaterMax() {
+    if (!entryLaoMonthSelect) return true;
+    const val = (entryLaoMonthSelect.value || "").trim();
+    const errEl = document.getElementById('err_repeater_sept_max');
+
+    if (val !== "09" && val !== "ກັນຍາ") {
+      if (errEl) errEl.style.display = 'none';
+      return true;
+    }
+
+    const f7Tot = parseInt(passedRegisteredTotal?.value) || 0;
+    const f7Fem = parseInt(passedRegisteredFemale?.value) || 0;
+    const f8Tot = parseInt(augustPrevYearTotal?.value) || 0;
+    const f8Fem = parseInt(augustPrevYearFemale?.value) || 0;
+
+    const maxTot = Math.max(0, f7Tot - f8Tot);
+    const maxFem = Math.max(0, f7Fem - f8Fem);
+
+    const curTot = parseInt(repeaterTotal?.value) || 0;
+    const curFem = parseInt(repeaterFemale?.value) || 0;
+
+    let isValid = (curTot <= maxTot) && (curFem <= maxFem);
+
+    if (!isValid && errEl) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ ຕ້ອງບໍ່ເກີນ 7-8`;
+    } else if (errEl) {
+      errEl.style.display = 'none';
+    }
+
+    return isValid;
+  }
+
+  function validateSeptemberTransferOutMax() {
+    if (!entryLaoMonthSelect) return true;
+    const val = (entryLaoMonthSelect.value || "").trim();
+    if (val !== "09" && val !== "ກັນຍາ") {
+      const errEl = document.getElementById('err_transferOut_sept_max');
+      if (errEl) errEl.style.display = 'none';
+      return true;
+    }
+
+    const f7Tot = parseInt(passedRegisteredTotal?.value) || 0;
+    const f7Fem = parseInt(passedRegisteredFemale?.value) || 0;
+    const f8Tot = parseInt(augustPrevYearTotal?.value) || 0;
+    const f8Fem = parseInt(augustPrevYearFemale?.value) || 0;
+
+    const maxTrOutTot = Math.max(0, f7Tot - f8Tot);
+    const maxTrOutFem = Math.max(0, f7Fem - f8Fem);
+
+    const curTrOutTot = parseInt(transferOutTotal?.value) || 0;
+    const curTrOutFem = parseInt(transferOutFemale?.value) || 0;
+
+    const errEl = document.getElementById('err_transferOut_sept_max');
+
+    let isValid = true;
+    let errorMsgs = [];
+
+    if (curTrOutTot > maxTrOutTot) {
+      isValid = false;
+      errorMsgs.push(`ທັງໝົດ (${curTrOutTot}) ເກີນ ${maxTrOutTot}`);
+    }
+    if (curTrOutFem > maxTrOutFem) {
+      isValid = false;
+      errorMsgs.push(`ຍິງ (${curTrOutFem}) ເກີນ ${maxTrOutFem}`);
+    }
+
+    if (!isValid && errEl) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ຈຳນວນຍ້າຍອອກ ຕ້ອງບໍ່ເກີນ 7-8`;
+    } else if (errEl) {
+      errEl.style.display = 'none';
+    }
+
+    return isValid;
   }
 
   function validateAugustCounts() {
@@ -902,12 +983,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const f8Tot = parseInt(augustPrevYearTotal?.value) || 0;
     const f8Fem = parseInt(augustPrevYearFemale?.value) || 0;
 
+    const trInTot  = parseInt(transferInTotal?.value)  || 0;
+    const trInFem  = parseInt(transferInFemale?.value) || 0;
+    const trOutTot = parseInt(transferOutTotal?.value) || 0;
+    const trOutFem = parseInt(transferOutFemale?.value) || 0;
+    const suspTot  = parseInt(suspendedTotal?.value)  || 0;
+    const suspFem  = parseInt(suspendedFemale?.value) || 0;
+
+    updateReasonRequirements();
+    validateSeptemberTransferOutMax();
+    validateSeptemberRepeaterMax();
+
     let calcDropTot = 0;
     let calcDropFem = 0;
 
     if (isSeptember) {
-      calcDropTot = Math.max(0, f7Tot - f8Tot);
-      calcDropFem = Math.max(0, f7Fem - f8Fem);
+      // 1. ປະລະ [12] = 7 (ທ້າຍປີຜ່ານມາ) - 8 (ມາລົງທະບຽນ) - 11 (ຍ້າຍອອກ)
+      calcDropTot = Math.max(0, f7Tot - f8Tot - trOutTot);
+      calcDropFem = Math.max(0, f7Fem - f8Fem - trOutFem);
       if (dropoutTotal)  dropoutTotal.value  = calcDropTot;
       if (dropoutFemale) dropoutFemale.value = calcDropFem;
     } else if (isOctober) {
@@ -920,23 +1013,15 @@ document.addEventListener('DOMContentLoaded', () => {
       calcDropFem = parseInt(dropoutFemale?.value) || 0;
     }
 
-    const trInTot  = parseInt(transferInTotal?.value)  || 0;
-    const trInFem  = parseInt(transferInFemale?.value) || 0;
-    const trOutTot = parseInt(transferOutTotal?.value) || 0;
-    const trOutFem = parseInt(transferOutFemale?.value) || 0;
-    const suspTot  = parseInt(suspendedTotal?.value)  || 0;
-    const suspFem  = parseInt(suspendedFemale?.value) || 0;
-
-    updateReasonRequirements();
-
     let calcAttendingTot = 0;
     let calcAttendingFem = 0;
 
     if (isSeptember) {
       const repTot = parseInt(repeaterTotal?.value) || 0;
       const repFem = parseInt(repeaterFemale?.value) || 0;
-      calcAttendingTot = Math.max(0, f8Tot + repTot + trInTot - trOutTot - suspTot);
-      calcAttendingFem = Math.max(0, f8Fem + repFem + trInFem - trOutFem - suspFem);
+      // 2. 14 (ໜ້າຮຽນຕົວຈິງ) = 8 (ມາລົງທະບຽນ) + 9 (ຄ້າງຫ້ອງ) + 10 (ຍ້າຍເຂົ້າ) - 13 (ໂຈະ)
+      calcAttendingTot = Math.max(0, f8Tot + repTot + trInTot - suspTot);
+      calcAttendingFem = Math.max(0, f8Fem + repFem + trInFem - suspFem);
     } else if (isOctober) {
       calcAttendingTot = Math.max(0, f7Tot + f8Tot + trInTot - trOutTot - suspTot);
       calcAttendingFem = Math.max(0, f7Fem + f8Fem + trInFem - trOutFem - suspFem);
@@ -955,6 +1040,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!districtSelect?.value || !schoolSelect?.value || !collectorNameInput?.value || !educationLevelSelect?.value || !gradeLevelSelect?.value) {
       showToast("ກະລຸນາ ປ້ອນຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ (*) ໃຫ້ຄົບຖ້ວນ!", "error");
+      return;
+    }
+
+    if (!validateSeptemberRepeaterMax()) {
+      showToast("ເດືອນກັນຍາ: ຈຳນວນນັກຮຽນຄ້າງຫ້ອງ (ຊ່ອງ 9) ຕ້ອງບໍ່ເກີນ (ຊ່ອງ 7 - ຊ່ອງ 8)!", "error");
+      return;
+    }
+
+    if (!validateSeptemberTransferOutMax()) {
+      const f7Tot = parseInt(passedRegisteredTotal?.value) || 0;
+      const f8Tot = parseInt(augustPrevYearTotal?.value) || 0;
+      const maxAllowed = Math.max(0, f7Tot - f8Tot);
+      showToast(`ເດືອນກັນຍາ: ຈຳນວນຍ້າຍອອກ (ຊ່ອງ 11) ຕ້ອງບໍ່ເກີນ (ຊ່ອງ 7 - ຊ່ອງ 8 = ${maxAllowed})!`, "error");
       return;
     }
 
